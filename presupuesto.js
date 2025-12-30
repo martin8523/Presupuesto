@@ -24,25 +24,22 @@ function agregarFila(){
   const cant = document.createElement("input");
   cant.type="number"; cant.value=1;
 
-const tdPrecio = document.createElement("td");
-const tdSub = document.createElement("td");
+  const precio = document.createElement("td");
+  const sub = document.createElement("td");
 
-const tdSel = document.createElement("td");
-const tdCant = document.createElement("td");
-const tdDel = document.createElement("td");
+  const del = document.createElement("button");
+  del.textContent="X";
 
-tdSel.appendChild(sel);
-tdCant.appendChild(cant);
-tdDel.appendChild(del);
-
-tr.append(tdSel, tdCant, tdPrecio, tdSub, tdDel);
+  tr.innerHTML="<td></td><td></td><td></td><td></td><td></td>";
+  tr.children[0].appendChild(sel);
+  tr.children[1].appendChild(cant);
+  tr.children[2]=precio;
+  tr.children[3]=sub;
+  tr.children[4].appendChild(del);
 
   tbody.appendChild(tr);
 
-  ssel.onchange=()=>{
-  tdPrecio.dataset.valor = sel.selectedOptions[0].dataset.precio;
-  calcular();
-};
+  sel.onchange=()=>{precio.dataset.valor=sel.selectedOptions[0].dataset.precio; calcular();}
   cant.oninput=calcular;
   del.onclick=()=>{tr.remove(); calcular();}
 }
