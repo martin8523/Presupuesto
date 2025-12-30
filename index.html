@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Presupuesto</title>
+<link rel="stylesheet" href="presupuesto.css">
+</head>
+<body>
+
+<div class="container">
+
+  <img src="logo.png" class="logo">
+
+  <div class="top">
+    <div>
+      Presupuesto Nº <b id="numero"></b><br>
+      Fecha: <b id="fecha"></b>
+    </div>
+    <div>
+      Destinatario:<br>
+      <input id="cliente">
+    </div>
+  </div>
+
+  Tipo factura:
+  <select id="tipoFactura">
+    <option value="B">B</option>
+    <option value="A">A</option>
+  </select>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Detalle</th>
+        <th>Cant</th>
+        <th>Precio</th>
+        <th>Subtotal</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="detalle"></tbody>
+  </table>
+
+  <div class="botones">
+    <button id="agregar">➕ Agregar</button>
+    <button onclick="window.print()">🖨 Imprimir</button>
+    <a href="items.html">⚙ Editar ítems</a>
+  </div>
+
+  <div class="totales">
+    <div>Neto <span id="neto">0</span></div>
+    <div>IVA 21% <span id="iva">0</span></div>
+    <div>IIBB 8% <span id="iibb">0</span></div>
+    <div>Total <span id="total">0</span></div>
+  </div>
+
+</div>
+
+<script src="presupuesto.js"></script>
+</body>
+</html>
