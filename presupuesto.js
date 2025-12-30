@@ -1,110 +1,68 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const detalle = document.getElementById("detalle-items");
-  const btnAgregar = document.getElementById("btn-agregar");
-  const btnImprimir = document.getElementById("btn-imprimir");
-  const totalEl = document.getElementById("total");
+const API = "https://opensheet.elk.sh/1nOPP_tzOkIx_qDRCpxyR0mOyZMveCB5QlT4CEM1M7eI/Hoja%201";
 
-  const itemsDisponibles = [
-    { descripcion: "Ataud para Nicho N° 15", precio: 630000 },
-    { descripcion: "Ataud para Nicho Semi-Extraordinario", precio: 752000 },
-    { descripcion: "Ataud para Nicho Extraordinario", precio: 1160000 },
-    { descripcion: "Nicho Nuevo", precio: 700000 },
-    { descripcion: "Nicho Usado", precio: 350000 },
-    { descripcion: "VELACION X HORA", precio: 160000 },
-    { descripcion: "GASTOS ADMINISTRATIVOS", precio: 80000 },
-    { descripcion: "Ataud para Tierra N° 15", precio: 418000 },
-    { descripcion: "Ataud para Tierra Semi-Extraordinario", precio: 490000 },
- 
-    
+let items = [];
 
-    // agregar más ítems según sea necesario
-  ];
+fetch(API)
+ .then(r=>r.json())
+ .then(data=>items=data);
 
-  document.getElementById("fecha").textContent = new Date().toLocaleDateString("es-AR");
+const tbody = document.getElementById("detalle");
 
-  function calcularTotal() {
-    let total = 0;
-    detalle.querySelectorAll(".item-row").forEach(row => {
-      const cantidad = parseFloat(row.querySelector(".cantidad").value) || 0;
-      const precio = parseFloat(row.querySelector(".precio").textContent) || 0;
-      total += cantidad * precio;
-      row.querySelector(".importe").textContent = (cantidad * precio).toFixed(0);
-    });
-    totalEl.textContent = total.toLocaleString("es-AR");
+document.getElementById("fecha").innerText = new Date().toLocaleDateString("es-AR");
+document.getElementById("numero").innerText = Date.now().toString().slice(-6);
+
+document.getElementById("agregar").onclick = ()=>agregarFila();
+document.getElementById("tipoFactura").onchange = calcular;
+
+function agregarFila(){
+  const tr = document.createElement("tr");
+
+  const sel = document.createElement("select");
+  sel.innerHTML = `<option value="">--item--</option>`+
+    items.map(i=>`<option data-precio="${i.precio}">${i.descripcion}</option>`).join("");
+
+  const cant = document.createElement("input");
+  cant.type="number"; cant.value=1;
+
+  const precio = document.createElement("td");
+  const sub = document.createElement("td");
+
+  const del = document.createElement("button");
+  del.textContent="X";
+
+  tr.innerHTML="<td></td><td></td><td></td><td></td><td></td>";
+  tr.children[0].appendChild(sel);
+  tr.children[1].appendChild(cant);
+  tr.children[2]=precio;
+  tr.children[3]=sub;
+  tr.children[4].appendChild(del);
+
+  tbody.appendChild(tr);
+
+  sel.onchange=()=>{precio.dataset.valor=sel.selectedOptions[0].dataset.precio; calcular();}
+  cant.oninput=calcular;
+  del.onclick=()=>{tr.remove(); calcular();}
+}
+
+function calcular(){
+  let bruto=0;
+  document.querySelectorAll("#detalle tr").forEach(tr=>{
+    const cant=+tr.querySelector("input").value;
+    const precio=+tr.querySelector("td:nth-child(3)").dataset.valor||0;
+    const sub=cant*precio;
+    tr.querySelector("td:nth-child(3)").innerText=precio.toLocaleString("es-AR");
+    tr.querySelector("td:nth-child(4)").innerText=sub.toLocaleString("es-AR");
+    bruto+=sub;
+  });
+
+  let neto=bruto, iva=0;
+  if(document.getElementById("tipoFactura").value==="A"){
+    neto=bruto/1.21; iva=bruto-neto;
   }
+  const iibb=neto*0.08;
 
-  function agregarFila() {
-    const fila = document.createElement("div");
-    fila.className = "item-row";
-
-    // Selección de ítem
-    const select = document.createElement("select");
-    const emptyOption = document.createElement("option");
-    emptyOption.value = "";
-    emptyOption.textContent = "-- Seleccione ítem --";
-    select.appendChild(emptyOption);
-
-    itemsDisponibles.forEach(it => {
-      const opt = document.createElement("option");
-      opt.value = it.descripcion;
-      opt.textContent = it.descripcion;
-      opt.dataset.precio = it.precio;
-      select.appendChild(opt);
-    });
-
-    // Descripción y precio
-    const labelDesc = document.createElement("label");
-    labelDesc.textContent = "";
-
-    const inputCantidad = document.createElement("input");
-    inputCantidad.type = "number";
-    inputCantidad.min = "1";
-    inputCantidad.value = "1";
-    inputCantidad.className = "cantidad";
-
-    const labelPrecio = document.createElement("label");
-    labelPrecio.textContent = "0";
-    labelPrecio.className = "precio";
-
-    const labelImporte = document.createElement("label");
-    labelImporte.textContent = "0";
-    labelImporte.className = "importe";
-
-    // Botón eliminar
-    const btnEliminar = document.createElement("button");
-    btnEliminar.type = "button";
-    btnEliminar.textContent = "❌";
-
-    fila.appendChild(select);
-    fila.appendChild(labelDesc);
-    fila.appendChild(inputCantidad);
-    fila.appendChild(labelPrecio);
-    fila.appendChild(labelImporte);
-    fila.appendChild(btnEliminar);
-
-    detalle.appendChild(fila);
-
-    select.addEventListener("change", () => {
-      const selected = select.selectedOptions[0];
-      if (!selected.value) {
-        labelDesc.textContent = "";
-        labelPrecio.textContent = "0";
-      } else {
-        labelDesc.textContent = selected.value;
-        labelPrecio.textContent = parseFloat(selected.dataset.precio).toFixed(0);
-      }
-      calcularTotal();
-    });
-
-    inputCantidad.addEventListener("input", calcularTotal);
-    btnEliminar.addEventListener("click", () => {
-      fila.remove();
-      calcularTotal();
-    });
-
-    calcularTotal();
-  }
-
-  btnAgregar.addEventListener("click", agregarFila);
-  btnImprimir.addEventListener("click", () => window.print());
-});
+  document.getElementById("neto").innerText=Math.round(neto).toLocaleString("es-AR");
+  document.getElementById("iva").innerText=Math.round(iva).toLocaleString("es-AR");
+  document.getElementById("iibb").innerText=Math.round(iibb).toLocaleString("es-AR");
+  document.getElementById("total").innerText=Math.round(bruto+iibb).toLocaleString("es-AR");
+}
