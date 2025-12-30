@@ -1,12 +1,131 @@
-body{font-family:Arial;background:#eee;}
-.container{max-width:900px;margin:auto;background:white;padding:20px;}
-.logo{width:100%;max-height:120px;object-fit:contain;}
-table{width:100%;border-collapse:collapse;}
-th,td{border:1px solid #aaa;padding:6px;text-align:center;}
-.botones{margin:10px 0;display:flex;gap:10px;}
-.totales{width:300px;margin-left:auto;font-weight:bold;}
+*{
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
 
+body{
+  margin:0;
+  background:#f5f5f5;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:20px;
+}
+
+/* ===== HEADER ===== */
+.header img{
+  width:100%;
+  max-height:140px;
+  object-fit:contain;
+  margin-bottom:10px;
+}
+
+.meta{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.meta input{
+  width:100%;
+  padding:6px;
+}
+
+/* ===== TABLE ===== */
+.table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.table th,
+.table td{
+  border:1px solid #ccc;
+  padding:6px;
+  font-size:14px;
+  text-align:center;
+}
+
+.table th{
+  background:#eee;
+}
+
+.table td:nth-child(1){
+  text-align:left;
+}
+
+/* Prevent stacking on mobile */
+.table tr{
+  display:table-row;
+}
+.table td, .table th{
+  display:table-cell;
+}
+
+.cant{
+  width:60px;
+}
+
+/* ===== TOTALS ===== */
+.totales{
+  width:300px;
+  margin-left:auto;
+  margin-top:15px;
+}
+
+.totales div{
+  display:flex;
+  justify-content:space-between;
+  margin:5px 0;
+  font-weight:bold;
+}
+
+/* ===== BUTTONS ===== */
+.botones{
+  margin-top:15px;
+  display:flex;
+  gap:10px;
+}
+
+button{
+  padding:8px 12px;
+  background:#198754;
+  color:white;
+  border:none;
+  cursor:pointer;
+  border-radius:4px;
+}
+
+/* ===== PRINT ===== */
 @media print{
+  body{
+    background:white;
+  }
+
+  button, input, select{
+    display:none !important;
+    border:none !important;
+    outline:none !important;
+    box-shadow:none !important;
+  }
+
+  .container{
+    box-shadow:none;
+    margin:0;
+    width:100%;
+  }
+
+  .table th, .table td{
+    border:1px solid black;
+  }
+}
+
+
+//@media print{
   button,input,select,a{display:none;}
   body{background:white;}
-}
+}//
+
