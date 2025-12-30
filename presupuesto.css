@@ -124,8 +124,9 @@ button{
 }
 
 
-//@media print{
+/*@media print{
   button,input,select,a{display:none;}
   body{background:white;}
-}//
+}*/
+
 
