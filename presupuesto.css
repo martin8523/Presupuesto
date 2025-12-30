@@ -1,125 +1,104 @@
-*{
-  box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
+/* Base */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f9;
+  color: #333;
 }
 
-body{
-  margin:0;
-  background:#f5f5f5;
+/* Header */
+header img {
+  max-width: 150px;
 }
 
-.container{
-  max-width:900px;
-  margin:auto;
-  background:white;
-  padding:20px;
+header h2 {
+  color: #4CAF50;
+  font-weight: bold;
 }
 
-/* ===== HEADER ===== */
-.header img{
-  width:100%;
-  max-height:140px;
-  object-fit:contain;
-  margin-bottom:10px;
+input {
+  max-width: 300px;
 }
 
-.meta{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-bottom:15px;
+/* Tabla */
+table th {
+  background-color: #e9ecef;
 }
 
-.meta input{
-  width:100%;
-  padding:6px;
+table td,
+table th {
+  vertical-align: middle;
 }
 
-/* ===== TABLE ===== */
-.table{
-  width:100%;
-  border-collapse:collapse;
+/* Inputs dentro de tabla */
+table input,
+table select {
+  width: 100%;
+  text-align: center;
 }
 
-.table th,
-.table td{
-  border:1px solid #ccc;
-  padding:6px;
-  font-size:14px;
-  text-align:center;
+/* Botones */
+.botones,
+.d-flex {
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
-.table th{
-  background:#eee;
+/* Total */
+.total,
+.text-end {
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
-.table td:nth-child(1){
-  text-align:left;
+/* Footer */
+footer {
+  background-color: #ececec;
+  padding: 15px 0;
+  font-size: 0.9rem;
 }
 
-/* Prevent stacking on mobile */
-.table tr{
-  display:table-row;
-}
-.table td, .table th{
-  display:table-cell;
-}
-
-.cant{
-  width:60px;
-}
-
-/* ===== TOTALS ===== */
-.totales{
-  width:300px;
-  margin-left:auto;
-  margin-top:15px;
-}
-
-.totales div{
-  display:flex;
-  justify-content:space-between;
-  margin:5px 0;
-  font-weight:bold;
-}
-
-/* ===== BUTTONS ===== */
-.botones{
-  margin-top:15px;
-  display:flex;
-  gap:10px;
-}
-
-button{
-  padding:8px 12px;
-  background:#198754;
-  color:white;
-  border:none;
-  cursor:pointer;
-  border-radius:4px;
-}
-
-/* ===== PRINT ===== */
-@media print{
-  body{
-    background:white;
+/* Ajustes mobile */
+@media (max-width: 576px) {
+  header h2 {
+    font-size: 1.3rem;
   }
 
-  button, input, select{
-    display:none !important;
-    border:none !important;
-    outline:none !important;
-    box-shadow:none !important;
+  footer {
+    text-align: center;
   }
 
-  .container{
-    box-shadow:none;
-    margin:0;
-    width:100%;
+  .text-end {
+    text-align: center !important;
+  }
+}
+
+/* Impresión tipo factura */
+@media print {
+  body {
+    background: white;
   }
 
-  .table th, .table td{
-    border:1px solid black;
+  .btn,
+  .botones,
+  button {
+    display: none !important;
+  }
+
+  input,
+  select {
+    border: none;
+    background: none;
+    padding: 0;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  footer {
+    border-top: 1px solid #000;
+    margin-top: 20px;
+    padding-top: 10px;
   }
 }
 
@@ -128,5 +107,6 @@ button{
   button,input,select,a{display:none;}
   body{background:white;}
 }*/
+
 
 
