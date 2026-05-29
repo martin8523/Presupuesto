@@ -4,31 +4,17 @@ body {
   background: #f4f4f9;
   color: #333;
 }
-
 header {
   text-align: center;
 }
 
-#top {
+#top{
   border-top-style: groove;
   border-bottom-style: groove;
-  font-weight: bold;
-  padding: 8px 0;
 }
-
-.logo { 
-  width: 120px; 
-  margin-bottom: 10px; 
-}
-
-.encabezado-texto h2 { 
-  color: #8231b8; /* Unificado con el color de tus botones corporativos */
-  margin: 5px 0; 
-}
-
-.encabezado-texto p { 
-  margin: 5px 0; 
-}
+.logo { width: 120px; margin-bottom: 10px; }
+.encabezado-texto h1 { color: #4CAF50; margin: 5px 0; }
+.encabezado-texto p { margin: 2px 0; }
 
 .encabezado-texto input {
   border: 1px solid #ccc;
@@ -60,8 +46,8 @@ header {
 }
 
 /* Bordes personalizados según tu estilo original */
-#btn-agregar { border-radius: 5% 35%; }
-#btn-imprimir { border-radius: 35% 5%; }
+#btn-agregar { border-radius: 12px; }
+#btn-imprimir { border-radius: 12px; }
 #btn-abrir-contrato { border-radius: 12px; } /* Estilo sutil para el nuevo botón */
 
 /* Filas Dinámicas del Presupuesto */
@@ -69,36 +55,23 @@ header {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   border-bottom: 1px solid #ccc;
   gap: 10px;
-  align-items: center;
 }
-
-.item-row select, .item-row input { 
-  flex: 1; 
-  padding: 6px;
-}
-
-.item-row .cantidad { 
-  max-width: 70px; 
-}
-
-/* Campos de entrada estilizados */
-.cantidad {
+.item-row label, .item-row select, .item-row input { flex: 1; }
+.item-row .cantidad { max-width: 60px; }
+.total { text-align: right; font-size: 18px; font-weight: bold; margin-top: 10px; margin-right: 20px; }
+.cantidad{
   border-radius: 5px;
   text-align: center;
-  border: 1px solid #ccc;
 }
 
-select {
+select{
   border-radius: 20px;
   text-align: center;
-  border: 1px solid #ccc;
-  padding: 4px;
 }
-
-.importe {
+.importe{
   text-align: center;
   margin-left: 50px;
 }
