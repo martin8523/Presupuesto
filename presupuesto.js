@@ -381,8 +381,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 
-  // ==========================================
-  // BOTÓN 1: ACCIÓN IMPRIMIR DIRECTO
+ // ==========================================
+  // BOTÓN 1: ACCIÓN IMPRIMIR DIRECTO (SIN PESTAÑA NUEVA)
   // ==========================================
   const btnImprimirContrato = document.getElementById("btnImprimirContrato");
   if (btnImprimirContrato) {
@@ -390,33 +390,53 @@ document.addEventListener("DOMContentLoaded", () => {
       evento.preventDefault();
       if (!formContrato.checkValidity()) { formContrato.reportValidity(); return; }
 
-      console.log("Ejecutando acción de Impresión...");
+      console.log("Ejecutando acción de Impresión en segundo plano...");
       const docs = generarEstructurasDocumentos();
 
-      const ventanaImpresion = window.open("", "_blank");
-      ventanaImpresion.document.write(`
-        <html>
-          <head>
-            <title>Imprimir Documentos - CESPAZ</title>
-            <style>
-              body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #ffffff; }
-              .salto-pagina { page-break-before: always; }
-              @media print { body { padding: 0; } .no-imprimir { display: none; } }
-            </style>
-          </head>
-          <body>
-            <div class="no-imprimir" style="background: #f4f4f4; padding: 12px; text-align: center; border-bottom: 1px solid #ddd; margin-bottom: 20px;">
-              <button onclick="window.print();" style="padding: 10px 20px; font-size: 14px; background: #540d97; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">➔ Lanzar Impresora</button>
-            </div>
-            <div>${docs.elementoPresupuesto.innerHTML}</div>
-            <div class="salto-pagina"></div>
-            <div>${docs.elementoContrato.innerHTML}</div>
-            <script>window.onload = function() { window.print(); }</script>
-          </body>
-        </html>
-      `);
-      ventanaImpresion.document.close();
-      resetearModalLuegoDeAccion();
+      // 1. Creamos un contenedor temporal en la misma página
+      const contenedorTemporal = document.createElement("div");
+      contenedorTemporal.id = "zona-impresion-temporal";
+      
+      // 2. Le metemos los estilos para que NO se vea en la pantalla normal, pero SÍ al imprimir
+      contenedorTemporal.innerHTML = `
+        <style>
+          /* En la pantalla normal del sistema, ocultamos todo esto */
+          #zona-impresion-temporal {
+            display: none;
+          }
+          /* Al momento de imprimirse, ocultamos el resto de la web y mostramos solo esto */
+          @media print {
+            body > * {
+              display: none !important;
+            }
+            #zona-impresion-temporal {
+              display: block !important;
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+            }
+            .salto-pagina { 
+              page-break-before: always; 
+            }
+          }
+        </style>
+        <div>${docs.elementoPresupuesto.innerHTML}</div>
+        <div class="salto-pagina"></div>
+        <div>${docs.elementoContrato.innerHTML}</div>
+      `;
+
+      // 3. Lo metemos al cuerpo del documento temporalmente
+      document.body.appendChild(contenedorTemporal);
+
+      // 4. Lanzamos la orden de impresión del navegador
+      window.print();
+
+      // 5. Una vez que el usuario acepta o cancela la impresión, limpiamos el clon y el modal
+      setTimeout(() => {
+        contenedorTemporal.remove();
+        resetearModalLuegoDeAccion();
+      }, 500); 
     });
   }
 
