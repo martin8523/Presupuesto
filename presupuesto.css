@@ -12,6 +12,12 @@ header {
   border-top-style: groove;
   border-bottom-style: groove;
 }
+
+#ButonX {
+  border-radius: 12px;
+  background-color: #f5dca6;
+  }
+
 .logo { width: 120px; margin-bottom: 10px; }
 .encabezado-texto h1 { color: #4CAF50; margin: 5px 0; }
 .encabezado-texto p { margin: 2px 0; }
