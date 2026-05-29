@@ -1,112 +1,163 @@
-/* Base */
 body {
   font-family: Arial, sans-serif;
+  margin: 15px;
   background: #f4f4f9;
   color: #333;
 }
 
-/* Header */
-header img {
-  max-width: 150px;
-}
-
-header h2 {
-  color: #4CAF50;
-  font-weight: bold;
-}
-
-input {
-  max-width: 300px;
-}
-
-/* Tabla */
-table th {
-  background-color: #e9ecef;
-}
-
-table td,
-table th {
-  vertical-align: middle;
-}
-
-/* Inputs dentro de tabla */
-table input,
-table select {
-  width: 100%;
+header {
   text-align: center;
 }
 
-/* Botones */
-.botones,
-.d-flex {
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-
-/* Total */
-.total,
-.text-end {
-  font-size: 1.2rem;
+#top {
+  border-top-style: groove;
+  border-bottom-style: groove;
   font-weight: bold;
+  padding: 8px 0;
 }
 
-/* Footer */
-footer {
-  background-color: #ececec;
+.logo { 
+  width: 120px; 
+  margin-bottom: 10px; 
+}
+
+.encabezado-texto h2 { 
+  color: #8231b8; /* Unificado con el color de tus botones corporativos */
+  margin: 5px 0; 
+}
+
+.encabezado-texto p { 
+  margin: 5px 0; 
+}
+
+.encabezado-texto input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+
+/* Sección de Botones Principales */
+.botones { 
+  margin-bottom: 15px; 
+  margin-top: 15px; 
+  display: flex; 
+  gap: 15px; 
+  justify-content: center; 
+}
+
+.botones button { 
+  padding: 8px 20px; 
+  background-color: #8231b8; 
+  color: white; 
+  border: none; 
+  cursor: pointer;  
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.botones button:hover { 
+  background-color: #540d97; 
+}
+
+/* Bordes personalizados según tu estilo original */
+#btn-agregar { border-radius: 5% 35%; }
+#btn-imprimir { border-radius: 35% 5%; }
+#btn-abrir-contrato { border-radius: 12px; } /* Estilo sutil para el nuevo botón */
+
+/* Filas Dinámicas del Presupuesto */
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  gap: 10px;
+  align-items: center;
+}
+
+.item-row select, .item-row input { 
+  flex: 1; 
+  padding: 6px;
+}
+
+.item-row .cantidad { 
+  max-width: 70px; 
+}
+
+/* Campos de entrada estilizados */
+.cantidad {
+  border-radius: 5px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+select {
+  border-radius: 20px;
+  text-align: center;
+  border: 1px solid #ccc;
+  padding: 4px;
+}
+
+.importe {
+  text-align: center;
+  margin-left: 50px;
+}
+
+.total { 
+  text-align: right; 
+  font-size: 20px; 
+  font-weight: bold; 
+  margin-top: 15px; 
+  margin-right: 20px; 
+  color: #222;
+}
+
+/* Pie de página corporativo */
+#foot {
+  margin-top: 50px;
+  background-color: rgb(236, 236, 236);
   padding: 15px 0;
-  font-size: 0.9rem;
+  font-size: 14px;
+  border-top: 1px solid #ddd;
 }
 
-/* Ajustes mobile */
-@media (max-width: 576px) {
-  header h2 {
-    font-size: 1.3rem;
-  }
-
-  footer {
-    text-align: center;
-  }
-
-  .text-end {
-    text-align: center !important;
-  }
+/* Personalización para los textos y botones dentro del Modal de Bootstrap */
+.modal-content {
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-/* Impresión tipo factura */
+.modal-header.bg-dark {
+  background-color: #540d97 !important; /* Mantenemos tu identidad visual */
+}
+
+.modal-body label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #444;
+}
+
+/* Reglas de Impresión física tipo Factura */
 @media print {
+  .botones, select, button, .modal, .modal-backdrop { 
+    display: none !important; 
+  }
+  
   body {
-    background: white;
+    background: #fff;
+    margin: 0;
   }
 
-  .btn,
-  .botones,
-  button {
-    display: none !important;
+  input, .cantidad {
+    border-style: none !important;
+    background: transparent !important;
   }
-
-  input,
-  select {
-    border: none;
-    background: none;
-    padding: 0;
-  }
-
-  table {
-    font-size: 12px;
-  }
-
-  footer {
+  
+  #foot {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: transparent !important;
     border-top: 1px solid #000;
-    margin-top: 20px;
-    padding-top: 10px;
   }
 }
-
-
-/*@media print{
-  button,input,select,a{display:none;}
-  body{background:white;}
-}*/
-
-
-
