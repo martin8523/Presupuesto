@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const footerHtml = `
       <div style="width: 100%; margin-top: 35px; padding-top: 6px; border-top: 1px solid #cccccc; text-align: center; font-size: 9.5px; color: #444444; line-height: 1.35; font-family: Arial, sans-serif; clear: both; page-break-inside: avoid;">
-        <p style="margin: 2px 0;">12 de Octubre (7260) - Saladillo - Bs.As. | Tel: (2345) 65-3131</p>
+        <p style="margin: 2px 0;">Belgrano 3384 (7260) - Saladillo - Bs.As. | Tel: (2345) 65-3131</p>
         <p style="margin: 2px 0;">e-mail: serviciossociales@coopsal.com.ar | www.coopsal.com.ar/CESPAZ</p>
       </div>
     `;
