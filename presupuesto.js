@@ -77,14 +77,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const select = row.querySelector("select");
       const cantidad = parseInt(row.querySelector(".cantidad").value) || 0;
       const precio = parseFloat(row.querySelector(".precio").textContent) || 0;
-      const importe = cantidad * precio;
+      const importe = cantidad * precio; // <-- CORREGIDO quantity A cantidad
 
       if (select.value && cantidad > 0) {
         items.push({
           descripcion: select.value,
           cantidad: cantidad,
           precio: precio,
-          importe: importe
+          importe: cantidad * precio
         });
       }
     });
@@ -95,7 +95,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const fila = document.createElement("div");
     fila.className = "item-row";
 
+    const idUnico = Date.now() + Math.floor(Math.random() * 1000);
+
     const select = document.createElement("select");
+    select.id = `select-item-${idUnico}`;
     const emptyOption = document.createElement("option");
     emptyOption.value = "";
     emptyOption.textContent = "-- Seleccione ítem --";
@@ -111,16 +114,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const labelDesc = document.createElement("label");
     labelDesc.textContent = "";
+    labelDesc.setAttribute("for", `select-item-${idUnico}`);
 
     const inputCantidad = document.createElement("input");
     inputCantidad.type = "number";
     inputCantidad.min = "1";
     inputCantidad.value = "1";
     inputCantidad.className = "cantidad";
+    inputCantidad.id = `cantidad-item-${idUnico}`;
 
     const labelPrecio = document.createElement("label");
     labelPrecio.textContent = "0";
     labelPrecio.className = "precio";
+    labelPrecio.setAttribute("for", `cantidad-item-${idUnico}`);
 
     const labelImporte = document.createElement("label");
     labelImporte.textContent = "0";
@@ -161,9 +167,18 @@ document.addEventListener("DOMContentLoaded", () => {
     calcularTotal();
   }
 
-  // LÓGICA DEL NUEVO FLUJO DE CONTRATOS
+  if (btnAgregar) {
+    btnAgregar.addEventListener("click", agregarFila);
+  }
 
-  // 1. Validar que haya ítems y abrir el Modal (O pasa directo si hay presupuesto preexistente manual)
+  // TU LÓGICA DE IMPRESIÓN ORIGINAL DE TU HOME (RESPETADA AL 100%)
+  if (btnImprimir) {
+    btnImprimir.addEventListener("click", () => {
+      window.print();
+    });
+  }
+
+  // LÓGICA DEL NUEVO FLUJO DE CONTRATOS
   if (btnAbrirContrato) {
     btnAbrirContrato.addEventListener("click", () => {
       const chkPreexistente = document.getElementById("chkPreexistente");
@@ -176,12 +191,19 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (modalInstancia) {
         formContrato.reset(); // Limpia inputs previos
-        // Si estaba tildado el checkbox antes del reset, asegurar el estado visual del panel manual si aplica en tu app
+        const divCuotas = document.getElementById("contenedorCuotas");
+        if (divCuotas) divCuotas.style.display = "none";
+        
+        // Reset visual del garante al abrir
+        const contGarante = document.getElementById("camposGarante");
+        if (contGarante) contGarante.style.display = "none";
+        
         modalInstancia.show();
       }
     });
   }
-// ==========================================================================
+
+  // ==========================================================================
   // FUNCIÓN MAESTRA PARA CONSTRUIR LOS DOCUMENTOS (PRESUPUESTO Y CONTRATO)
   // ==========================================================================
   function generarEstructurasDocumentos() {
@@ -190,11 +212,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const dniTitular = document.getElementById("c-dni")?.value || "—";
     const domicilioTitular = document.getElementById("c-domicilio")?.value || "—";
     const telefonoTitular = document.getElementById("c-telefono")?.value || "—";
-    const metodoPago = document.getElementById("c-metodo-pago")?.value || "Efectivo";
-    const observaciones = document.getElementById("c-observaciones")?.value || "Sin observaciones adicionales.";
+    const metodoPago = document.getElementById("metodoPago")?.value || "Efectivo";
     
     const inputCuotas = document.getElementById("cantidadCuotas") || document.getElementById("c-cuotas");
     const cuotasSeleccionadas = inputCuotas ? parseInt(inputCuotas.value) : 3;
+
+    // Captura de datos del Garante
+    const chkGarante = document.getElementById("chkGarante");
+    const tieneGarante = chkGarante && chkGarante.checked;
+    const gNombre = document.getElementById("g-nombre")?.value || "—";
+    const gDni = document.getElementById("g-dni")?.value || "—";
+    const gDomicilio = document.getElementById("g-domicilio")?.value || "—";
+    const gTelefono = document.getElementById("g-telefono")?.value || "—";
 
     const fechaObjeto = new Date();
     const fechaActualTexto = fechaObjeto.toLocaleDateString("es-AR");
@@ -235,11 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    let observacionesHtml = "";
-    if (observaciones && observaciones.trim() !== "" && !observaciones.toLowerCase().includes("sin observaciones")) {
-      observacionesHtml = `<p style="font-size: 11.5px; margin-top: 8px; line-height: 1.4; word-wrap: break-word; white-space: normal;"><strong>Observación comercial:</strong> ${observaciones}</p>`;
-    }
-
     let detallePagoHtml = "";
     const pagoClave = metodoPago.toLowerCase();
     if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.includes("finan") || cuotasSeleccionadas > 1) {
@@ -266,6 +290,20 @@ document.addEventListener("DOMContentLoaded", () => {
           <h3 style="border-bottom: 2px solid #540d97; color: #540d97; margin-top: 12px; margin-bottom: 4px; padding-bottom: 2px; font-size: 12px; font-weight: bold; text-transform: uppercase;">CUARTA: CONCESIÓN Y DERECHOS DE NICHO</h3>
           <p style="font-size: 11.5px; margin-bottom: 10px; text-align: justify; margin-top: 0; line-height: 1.4; word-wrap: break-word; white-space: normal;">
             Respecto a los conceptos de arrendamiento o adjudicación de nicho incluidos en el objeto de este contrato, la prestataria otorga el derecho de uso y conservación del espacio designado conforme a los plazos legales establecidos por las ordenanzas municipales vigentes y las reglamentaciones internas de la sección cementerio de la Cooperativa. Cumplido dicho plazo contractual u ordinario, los familiares o responsables directos deberán solicitar la renovación del arrendamiento o, en su defecto, determinar el destino de los restos según los protocolos vigentes.
+          </p>
+        </div>
+      `;
+    }
+
+    // Cláusula de Garantía Solidaria Condicional
+    let clausulaGaranteHtml = "";
+    if (tieneGarante) {
+      tituloClausulaFirmas = incluyeNichoReal ? "SEXTA: DECLARACIÓN DE CONFORMIDAD" : "QUINTA: DECLARACIÓN DE CONFORMIDAD";
+      clausulaGaranteHtml = `
+        <div style="page-break-inside: avoid;">
+          <h3 style="border-bottom: 2px solid #540d97; color: #540d97; margin-top: 12px; margin-bottom: 4px; padding-bottom: 2px; font-size: 12px; font-weight: bold; text-transform: uppercase;">${incluyeNichoReal ? 'QUINTA' : 'CUARTA BIS'}: GARANTÍA Y FIANZA SOLIDARIA</h3>
+          <p style="font-size: 11.5px; margin-bottom: 10px; text-align: justify; margin-top: 0; line-height: 1.4; word-wrap: break-word; white-space: normal;">
+            Se constituye como Garante liso, llano y principal pagador de todas las obligaciones derivadas del presente contrato al/la <strong>Sr./Sra. ${gNombre}</strong>, DNI N° <strong>${gDni}</strong>, con domicilio legal en <strong>${gDomicilio}</strong> y teléfono <strong>${gTelefono}</strong>. El/la Garante asume la responsabilidad solidaria y directa sobre el total de los importes adeudados en caso de que EL CONTRATANTE no realice el o los pagos en el tiempo y forma estipulados, renunciando a los beneficios de exclusión y división de bienes.
           </p>
         </div>
       `;
@@ -334,17 +372,25 @@ document.addEventListener("DOMContentLoaded", () => {
       <p style="font-size: 11.5px; margin-bottom: 12px; line-height: 1.4;">Suministrar prestaciones según <strong>Presupuesto N° ${numeroSerie}</strong> por un valor de <strong>$${totalContrato.toLocaleString("es-AR")}</strong>.</p>
       <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">TERCERA: MODALIDAD DE PAGO</h3>
       <p style="font-size: 11.5px; margin-bottom: 6px; line-height: 1.45;">${detallePagoHtml}</p>
-      ${observacionesHtml}
       ${clausulaNichoHtml}
+      ${clausulaGaranteHtml}
       <div style="page-break-inside: avoid;">
         <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">${tituloClausulaFirmas}</h3>
-        <p style="font-size: 11.5px; margin-bottom: 15px; line-height: 1.4;">En prueba de conformidad, se firman dos ejemplares en la localidad de Saladillo.</p>
-        <div style="margin-top: 45px; width: 100%; display: block; clear: both; margin-bottom: 10px;">
-          <div style="width: 210px; float: left; text-align: center; border-top: 1px solid #222222; padding-top: 6px;">
-            <p style="margin: 0; font-size: 11.5px; font-weight: bold;">Firma del Contratante</p>
+        <p style="font-size: 11.5px; margin-bottom: 15px; line-height: 1.4;">En prueba de conformidad, se firman ejemplares en la localidad de Saladillo.</p>
+        
+        <div style="margin-top: 55px; width: 100%; display: block; clear: both; margin-bottom: 10px; page-break-inside: avoid;">
+          <div style="width: 30%; float: left; text-align: center; border-top: 1px solid #222222; padding-top: 6px;">
+            <p style="margin: 0; font-size: 11px; font-weight: bold;">Firma del Contratante</p>
           </div>
-          <div style="width: 210px; float: right; text-align: center; border-top: 1px solid #222222; padding-top: 6px;">
-            <p style="margin: 0; font-size: 11.5px; font-weight: bold;">Por la Empresa</p>
+          
+          ${tieneGarante ? `
+          <div style="width: 30%; float: left; margin-left: 5%; text-align: center; border-top: 1px solid #222222; padding-top: 6px;">
+            <p style="margin: 0; font-size: 11px; font-weight: bold;">Firma del Garante</p>
+          </div>
+          ` : ''}
+          
+          <div style="width: 30%; float: right; text-align: center; border-top: 1px solid #222222; padding-top: 6px;">
+            <p style="margin: 0; font-size: 11px; font-weight: bold;">Por la Empresa</p>
           </div>
           <div style="clear: both;"></div>
         </div>
@@ -368,6 +414,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (chkPreexistente) chkPreexistente.checked = false;
     const contCampos = document.getElementById("camposPreexistentes");
     if (contCampos) contCampos.style.display = "none";
+    
+    // Reset del Garante
+    const chkGaranteReset = document.getElementById("chkGarante");
+    if (chkGaranteReset) chkGaranteReset.checked = false;
+    const contGarante = document.getElementById("camposGarante");
+    if (contGarante) contGarante.style.display = "none";
+
     generarEstampaInicial();
   }
 
@@ -381,8 +434,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
 
- // ==========================================
-  // BOTÓN 1: ACCIÓN IMPRIMIR DIRECTO (SIN PESTAÑA NUEVA)
+  // ==========================================
+  // BOTÓN DEL MODAL: ACCIÓN IMPRIMIR AMBOS
   // ==========================================
   const btnImprimirContrato = document.getElementById("btnImprimirContrato");
   if (btnImprimirContrato) {
@@ -390,21 +443,16 @@ document.addEventListener("DOMContentLoaded", () => {
       evento.preventDefault();
       if (!formContrato.checkValidity()) { formContrato.reportValidity(); return; }
 
-      console.log("Ejecutando acción de Impresión en segundo plano...");
       const docs = generarEstructurasDocumentos();
 
-      // 1. Creamos un contenedor temporal en la misma página
       const contenedorTemporal = document.createElement("div");
       contenedorTemporal.id = "zona-impresion-temporal";
       
-      // 2. Le metemos los estilos para que NO se vea en la pantalla normal, pero SÍ al imprimir
       contenedorTemporal.innerHTML = `
         <style>
-          /* En la pantalla normal del sistema, ocultamos todo esto */
           #zona-impresion-temporal {
             display: none;
           }
-          /* Al momento de imprimirse, ocultamos el resto de la web y mostramos solo esto */
           @media print {
             body > * {
               display: none !important;
@@ -426,13 +474,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <div>${docs.elementoContrato.innerHTML}</div>
       `;
 
-      // 3. Lo metemos al cuerpo del documento temporalmente
       document.body.appendChild(contenedorTemporal);
-
-      // 4. Lanzamos la orden de impresión del navegador
       window.print();
 
-      // 5. Una vez que el usuario acepta o cancela la impresión, limpiamos el clon y el modal
       setTimeout(() => {
         contenedorTemporal.remove();
         resetearModalLuegoDeAccion();
@@ -442,7 +486,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   // ==========================================
-  // BOTÓN 2: ACCIÓN DESCARGAR ARCHIVOS PDF
+  // BOTÓN DEL MODAL: ACCIÓN DESCARGAR ARCHIVOS PDF
   // ==========================================
   const btnDescargarContrato = document.getElementById("btnDescargarContrato");
   if (btnDescargarContrato) {
@@ -450,7 +494,6 @@ document.addEventListener("DOMContentLoaded", () => {
       evento.preventDefault();
       if (!formContrato.checkValidity()) { formContrato.reportValidity(); return; }
 
-      console.log("Ejecutando descargas de PDF...");
       const docs = generarEstructurasDocumentos();
 
       const optP = { ...configuracionPdfNativa, filename: `Presupuesto_${docs.nombreArchivoSerie}.pdf` };
@@ -461,19 +504,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }).then(() => {
         resetearModalLuegoDeAccion();
       }).catch(err => {
-        console.error("Error al descargar:", err);
-        alert("Ocurrió un error en la descarga.");
+        console.error("Error al generar PDF:", err);
       });
     });
   }
-
-  //
-  // fin 
-  //
-
-  btnAgregar.addEventListener("click", agregarFila);
-  btnImprimir.addEventListener("click", () => window.print());
-  
-  // Carga inicial de una fila limpia para comodidad del usuario
-  agregarFila();
 });
