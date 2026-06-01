@@ -38,7 +38,7 @@
 
     <div class="botones">
       <button id="btn-agregar" type="button">➕ Agregar ítem</button>
-      <button id="btn-imprimir" type="button">🖨️ Imprimir</button>
+      <button id="btn-imprimir" type="button" >🖨️ Imprimir</button>
       <button id="btn-abrir-contrato" type="button" class="btn btn-primary" style="border-radius: 10px; padding: 5px 20px;">📜 Generar Contrato</button>
     </div>
 
@@ -99,6 +99,36 @@
                 <option value="12">12 Cuotas</option>
               </select>
             </div>
+            <!-- APARTADO PARA GARANTE -->
+            <div class="form-check my-3 p-3 bg-light rounded border">
+              <input class="form-check-input ms-0 me-2" type="checkbox" id="chkGarante" onchange="toggleCamposGarante()">
+              <label class="form-check-label fw-bold text-secondary" for="chkGarante">
+                Requiere Garante / Fiador
+              </label>
+  
+              <div id="camposGarante" class="mt-3" style="display: none;">
+                  <div class="row mb-2">
+                    <div class="col-md-6">
+                      <label for="g-nombre" class="form-label small fw-bold">Nombre y Apellido (Garante)</label>
+                      <input type="text" class="form-control form-control-sm" id="g-nombre">
+                    </div>
+                  <div class="col-md-6">
+                    <label for="g-dni" class="form-label small fw-bold">DNI / CUIT</label>
+                    <input type="text" class="form-control form-control-sm" id="g-dni">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="g-domicilio" class="form-label small fw-bold">Domicilio Legal</label>
+                    <input type="text" class="form-control form-control-sm" id="g-domicilio" placeholder="Calle, Número, Localidad">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="g-telefono" class="form-label small fw-bold">Teléfono de Contacto</label>
+                    <input type="tel" class="form-control form-control-sm" id="g-telefono">
+                  </div>
+                </div>
+              </div>
+          </div>
 
             <div class="form-check my-3 p-3 bg-light rounded border">
               <input class="form-check-input ms-0 me-2" type="checkbox" id="chkPreexistente" onchange="togglePresupuestoPreexistente()">
@@ -140,8 +170,15 @@ function togglePresupuestoPreexistente() {
     contenedor.style.display = chk.checked ? "block" : "none";
   }
 }
-</script>
 
+function toggleCamposGarante() {
+  const chk = document.getElementById("chkGarante");
+  const contenedor = document.getElementById("camposGarante");
+  if (chk && contenedor) {
+    contenedor.style.display = chk.checked ? "block" : "none";
+  }
+}
+</script>
           </form>
         </div>
           <div class="modal-footer">
