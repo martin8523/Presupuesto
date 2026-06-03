@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div style="page-break-inside: avoid;">
           <h3 style="border-bottom: 2px solid #540d97; color: #540d97; margin-top: 12px; margin-bottom: 4px; padding-bottom: 2px; font-size: 12px; font-weight: bold; text-transform: uppercase;">CUARTA: CONCESIÓN Y DERECHOS DE NICHO</h3>
           <p style="font-size: 11.5px; margin-bottom: 10px; text-align: justify; margin-top: 0; line-height: 1.4; word-wrap: break-word; white-space: normal;">
-            Respecto a los conceptos de arrendamiento o adjudicación de nicho incluidos en el objeto de este contrato, la prestataria otorga el derecho de uso y conservación del espacio designado conforme a los plazos legales establecidos por las ordenanzas municipales vigentes y las reglamentaciones internas de la sección cementerio de la Cooperativa. Cumplido dicho plazo contractual u ordinario, los familiares o responsables directos deberán solicitar la renovación del arrendamiento o, en su defecto, determinar el destino de los restos según los protocolos vigentes.
+            Respecto a los conceptos de arrendamiento o adjudicación de nicho incluidos en el objeto de este contrato, la prestataria otorga el derecho de uso y conservación del espacio designado conforme a los plazos legales establecidos por las ordenanzas municipales vigentes y las reglamentaciones internas de la sección Ces Paz de la Cooperativa. Cumplido dicho plazo contractual u ordinario, los familiares o responsables directos deberán solicitar la renovación del arrendamiento o, en su defecto, determinar el destino de los restos según los protocolos vigentes.
           </p>
         </div>
       `;
