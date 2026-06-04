@@ -11,14 +11,11 @@
 <body>
   <header>
     <div class="header-container">
-      <img src="logo.png" alt="Logo Empresa">
+      <img src="logo.png" alt="Logo Empresa" >
       <div class="encabezado-texto">
         <h2>Presupuesto por servicio Particular</h2>
-        <p style="margin-bottom: 5px;">
-          <strong>Nro. Presupuesto: </strong>
-          <span id="nro-presupuesto-estampa" style="font-weight: bold; color: #e65c00;"></span>
-        </p>
-        <p>Destinatario: <input type="text" id="destinatario-presupuesto"></p>
+        <p style="margin-bottom: 5px;"><strong>Nro. Presupuesto: </strong><span id="nro-presupuesto-estampa" style="font-weight: bold; color: #e65c00;"></span></p>
+        <p>Destinatario: <span><input type="text" id="destinatario-presupuesto"> </span></p>
         <p>Fecha: <span id="fecha"></span></p>
       </div>
     </div>
@@ -26,45 +23,42 @@
   </header>
 
   <main>
-    <div class="container text-center">
-      <div class="row align-items-start">
-        <!-- Cabecera de columnas: oculta en mobile -->
-        <div class="row" id="top">
-          <div class="col ocultar-en-movil"><label>Detalle</label></div>
-          <div class="col ocultar-en-movil"><label>Cantidad</label></div>
-          <div class="col ocultar-en-movil"><label>Precio</label></div>
-          <div class="col ocultar-en-movil"><label>Sub-total</label></div>
+     <div class="container text-center" >
+        <div class="row align-items-start" >          
+          <div class="row" id="top">
+            <div class="col"><label for="Detalle"> Detalle</label> </div>
+            <div class="col"><label for="Cantidad"> Cantidad</label> </div>
+            <div class="col"><label for="Precio"> Precio</label> </div>
+            <div class="col"><label for="Sub"> Sub-total</label> </div>
+          </div>
+          <div id="detalle-items">
+             </div>
         </div>
-        <div id="detalle-items"></div>
-      </div>
-    </div>
+     </div>
 
     <div class="botones">
       <button id="btn-agregar" type="button">➕ Agregar ítem</button>
-      <button id="btn-imprimir" type="button">🖨️ Imprimir</button>
-      <button id="btn-abrir-contrato" type="button">📜 Generar Contrato</button>
+      <button id="btn-imprimir" type="button" >🖨️ Imprimir</button>
+      <button id="btn-abrir-contrato" type="button" class="btn btn-primary" style="border-radius: 10px; padding: 5px 20px;">📜 Generar Contrato</button>
     </div>
 
     <div class="total">
       <strong>Total: $<span id="total">0.00</span></strong>
     </div>
   </main>
-
-  <!-- Modal Contrato -->
   <div class="modal fade" id="modalContrato" tabindex="-1" aria-labelledby="modalContratoLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content text-start">
         <div class="modal-header bg-dark text-white">
           <h5 class="modal-title" id="modalContratoLabel">Datos para la Confección del Contrato</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="form-contrato" novalidate>
-
+          <form id="form-contrato">
+            
             <h6 class="border-bottom pb-2 mb-3 text-secondary">Datos del Titular / Contratante</h6>
-
             <div class="row mb-3">
-              <div class="col-md-6 mb-3 mb-md-0">
+              <div class="col-md-6">
                 <label for="c-nombre" class="form-label">Nombre y Apellido / Razón Social</label>
                 <input type="text" class="form-control" id="c-nombre" required>
               </div>
@@ -75,7 +69,7 @@
             </div>
 
             <div class="row mb-3">
-              <div class="col-md-6 mb-3 mb-md-0">
+              <div class="col-md-6">
                 <label for="c-domicilio" class="form-label">Domicilio Legal</label>
                 <input type="text" class="form-control" id="c-domicilio" placeholder="Calle, Número, Localidad" required>
               </div>
@@ -84,10 +78,9 @@
                 <input type="tel" class="form-control" id="c-telefono" required>
               </div>
             </div>
-
             <div class="mb-3">
               <label for="metodoPago" class="form-label">Modalidad de Pago</label>
-              <select class="form-select" id="metodoPago">
+              <select class="form-select" id="metodoPago" onchange="evaluarModalidadPago()">
                 <option value="Efectivo">Efectivo</option>
                 <option value="Transferencia">Transferencia Bancaria</option>
                 <option value="Efectivo y Transferencia">Efectivo y Transferencia</option>
@@ -106,26 +99,26 @@
                 <option value="12">12 Cuotas</option>
               </select>
             </div>
-
-            <!-- Garante -->
+            <!-- APARTADO PARA GARANTE -->
             <div class="form-check my-3 p-3 bg-light rounded border">
-              <input class="form-check-input ms-0 me-2" type="checkbox" id="chkGarante">
+              <input class="form-check-input ms-0 me-2" type="checkbox" id="chkGarante" onchange="toggleCamposGarante()">
               <label class="form-check-label fw-bold text-secondary" for="chkGarante">
                 Requiere Garante / Fiador
               </label>
+  
               <div id="camposGarante" class="mt-3" style="display: none;">
-                <div class="row mb-2">
-                  <div class="col-md-6 mb-2 mb-md-0">
-                    <label for="g-nombre" class="form-label small fw-bold">Nombre y Apellido (Garante)</label>
-                    <input type="text" class="form-control form-control-sm" id="g-nombre">
-                  </div>
+                  <div class="row mb-2">
+                    <div class="col-md-6">
+                      <label for="g-nombre" class="form-label small fw-bold">Nombre y Apellido (Garante)</label>
+                      <input type="text" class="form-control form-control-sm" id="g-nombre">
+                    </div>
                   <div class="col-md-6">
                     <label for="g-dni" class="form-label small fw-bold">DNI / CUIT</label>
                     <input type="text" class="form-control form-control-sm" id="g-dni">
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-md-6 mb-2 mb-md-0">
+                  <div class="col-md-6">
                     <label for="g-domicilio" class="form-label small fw-bold">Domicilio Legal</label>
                     <input type="text" class="form-control form-control-sm" id="g-domicilio" placeholder="Calle, Número, Localidad">
                   </div>
@@ -135,14 +128,14 @@
                   </div>
                 </div>
               </div>
-            </div>
+          </div>
 
-            <!-- Presupuesto Preexistente -->
             <div class="form-check my-3 p-3 bg-light rounded border">
-              <input class="form-check-input ms-0 me-2" type="checkbox" id="chkPreexistente">
+              <input class="form-check-input ms-0 me-2" type="checkbox" id="chkPreexistente" onchange="togglePresupuestoPreexistente()">
               <label class="form-check-label fw-bold text-secondary" for="chkPreexistente">
                 Utilizar un Presupuesto Preexistente anterior
               </label>
+              
               <div id="camposPreexistentes" class="mt-3" style="display: none;">
                 <div class="row g-2">
                   <div class="col-6">
@@ -157,22 +150,53 @@
               </div>
             </div>
 
+<script>
+// Función para mostrar/ocultar el selector de cuotas en el modal
+function evaluarModalidadPago() {
+  const metodo = document.getElementById("metodoPago").value;
+  const contenedor = document.getElementById("contenedorCuotas");
+  if (metodo === "Plan de Pago Financiado") {
+    contenedor.style.display = "block";
+  } else {
+    contenedor.style.display = "none";
+  }
+}
+
+// NUEVO: Función para mostrar/ocultar campos de presupuesto preexistente
+function togglePresupuestoPreexistente() {
+  const chk = document.getElementById("chkPreexistente");
+  const contenedor = document.getElementById("camposPreexistentes");
+  if (chk && contenedor) {
+    contenedor.style.display = chk.checked ? "block" : "none";
+  }
+}
+
+function toggleCamposGarante() {
+  const chk = document.getElementById("chkGarante");
+  const contenedor = document.getElementById("camposGarante");
+  if (chk && contenedor) {
+    contenedor.style.display = chk.checked ? "block" : "none";
+  }
+}
+</script>
+
           </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" id="btnImprimirContrato" class="btn btn-primary" style="background-color: #540d97; border-color: #540d97;">🖨️ Imprimir Documentos</button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" id="btnDescargarContrato" class="btn btn-outline-primary">📥 Descargar PDFs</button>
+            <button type="button" id="btnImprimirContrato" class="btn btn-primary" style="background-color: #540d97; border-color: #540d97;">🖨️ Imprimir Documentos</button>
+          </div>
         </div>
-      </div>
     </div>
   </div>
 
   <footer id="foot">
     <div class="container text-center">
-      <div class="row align-items-center">
-        <div class="col-md-4 col-12 mb-1 mb-md-0">Belgrano 3384 (7260) - Saladillo - Bs.As.</div>
-        <div class="col-md-4 col-12 mb-1 mb-md-0">Tel: (2345) 65-3131</div>
-        <div class="col-md-4 col-12">e-mail: serviciossociales@coopsal.com.ar</div>
+      <div class="row align-items-start">
+        <div class="col">12 de Octubre (7260) - Saladillo - Bs.As.</div>
+        <div class="col">Tel: (2345) 65-3131</div>
+        <div class="col">e-mail: serviciossociales@coopsal.com.ar - www.coopsal.com.ar/CESPAZ</div>
       </div>
     </div>
   </footer>
