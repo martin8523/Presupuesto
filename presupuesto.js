@@ -4,9 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnImprimir = document.getElementById("btn-imprimir");
   const totalEl = document.getElementById("total");
 
-  // NUEVOS ELEMENTOS PARA EL MODAL Y CONTRATO
+  // ELEMENTOS PARA EL MODAL Y CONTRATO
   const btnAbrirContrato = document.getElementById("btn-abrir-contrato");
-  const btnFinalizarContrato = document.getElementById("btn-finalizar-contrato");
   const formContrato = document.getElementById("form-contrato");
   let modalInstancia = null;
 
@@ -19,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const anio = fecha.getFullYear();
     numeroPresupuestoAuto = `PR-${aleatorio}${mes}${anio}`;
     
-    // Si tenés un contenedor visual en el HTML para mostrarlo en tiempo real:
     const contenedorEstampa = document.getElementById("nro-presupuesto-estampa");
     if (contenedorEstampa) {
       contenedorEstampa.innerText = numeroPresupuestoAuto;
@@ -57,29 +55,33 @@ document.addEventListener("DOMContentLoaded", () => {
     { descripcion: "Ataud Angelito Nicho 12", precio: 505000 }
   ];
 
-  document.getElementById("fecha").textContent = new Date().toLocaleDateString("es-AR");
+  const fechaEl = document.getElementById("fecha");
+  if (fechaEl) {
+    fechaEl.textContent = new Date().toLocaleDateString("es-AR");
+  }
 
   function calcularTotal() {
     let total = 0;
+    if (!detalle) return 0;
     detalle.querySelectorAll(".item-row").forEach(row => {
       const cantidad = parseFloat(row.querySelector(".cantidad").value) || 0;
       const precio = parseFloat(row.querySelector(".precio").textContent) || 0;
       total += cantidad * precio;
       row.querySelector(".importe").textContent = (cantidad * precio).toFixed(0);
     });
-    totalEl.textContent = total.toLocaleString("es-AR");
+    if (totalEl) totalEl.textContent = total.toLocaleString("es-AR");
     return total;
   }
 
   function obtenerItemsSeleccionados() {
     const items = [];
+    if (!detalle) return items;
     detalle.querySelectorAll(".item-row").forEach(row => {
       const select = row.querySelector("select");
       const cantidad = parseInt(row.querySelector(".cantidad").value) || 0;
       const precio = parseFloat(row.querySelector(".precio").textContent) || 0;
-      const importe = cantidad * precio; // <-- CORREGIDO quantity A cantidad
 
-      if (select.value && cantidad > 0) {
+      if (select && select.value && cantidad > 0) {
         items.push({
           descripcion: select.value,
           cantidad: cantidad,
@@ -92,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function agregarFila() {
+    if (!detalle) return;
     const fila = document.createElement("div");
     fila.className = "item-row";
 
@@ -171,14 +174,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btnAgregar.addEventListener("click", agregarFila);
   }
 
-  // TU LÓGICA DE IMPRESIÓN ORIGINAL DE TU HOME (RESPETADA AL 100%)
   if (btnImprimir) {
     btnImprimir.addEventListener("click", () => {
       window.print();
     });
   }
 
-  // LÓGICA DEL NUEVO FLUJO DE CONTRATOS
+  // FLUJO DE CONTRATOS
   if (btnAbrirContrato) {
     btnAbrirContrato.addEventListener("click", () => {
       const chkPreexistente = document.getElementById("chkPreexistente");
@@ -190,11 +192,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       if (modalInstancia) {
-        formContrato.reset(); // Limpia inputs previos
+        if (formContrato) formContrato.reset();
         const divCuotas = document.getElementById("contenedorCuotas");
         if (divCuotas) divCuotas.style.display = "none";
         
-        // Reset visual del garante al abrir
         const contGarante = document.getElementById("camposGarante");
         if (contGarante) contGarante.style.display = "none";
         
@@ -207,23 +208,28 @@ document.addEventListener("DOMContentLoaded", () => {
   // FUNCIÓN MAESTRA PARA CONSTRUIR LOS DOCUMENTOS (PRESUPUESTO Y CONTRATO)
   // ==========================================================================
   function generarEstructurasDocumentos() {
-    // Obtener datos capturados de los inputs del modal
-    const nombreTitular = document.getElementById("c-nombre")?.value || "Sin Nombre";
-    const dniTitular = document.getElementById("c-dni")?.value || "—";
-    const domicilioTitular = document.getElementById("c-domicilio")?.value || "—";
-    const telefonoTitular = document.getElementById("c-telefono")?.value || "—";
-    const metodoPago = document.getElementById("metodoPago")?.value || "Efectivo";
-    
+    // Captura de datos de la Persona
+    const nombreTitular = document.getElementById("c-nombre")?.value.trim() || "Sin Nombre";
+    const dniTitular = document.getElementById("c-dni")?.value.trim() || "—";
+    const domicilioTitular = document.getElementById("c-domicilio")?.value.trim() || "—";
+
+    // Captura robusta del Selector Método de Pago
+    const selectMetodo = document.getElementById("metodoPago");
+    let metodoPagoStr = "Efectivo";
+    if (selectMetodo) {
+      metodoPagoStr = selectMetodo.value || (selectMetodo.options[selectMetodo.selectedIndex] ? selectMetodo.options[selectMetodo.selectedIndex].text : "Efectivo");
+    }
+
     const inputCuotas = document.getElementById("cantidadCuotas") || document.getElementById("c-cuotas");
-    const cuotasSeleccionadas = inputCuotas ? parseInt(inputCuotas.value) : 3;
+    const cuotasSeleccionadas = inputCuotas ? (parseInt(inputCuotas.value, 10) || 1) : 1;
 
     // Captura de datos del Garante
     const chkGarante = document.getElementById("chkGarante");
     const tieneGarante = chkGarante && chkGarante.checked;
-    const gNombre = document.getElementById("g-nombre")?.value || "—";
-    const gDni = document.getElementById("g-dni")?.value || "—";
-    const gDomicilio = document.getElementById("g-domicilio")?.value || "—";
-    const gTelefono = document.getElementById("g-telefono")?.value || "—";
+    const gNombre = document.getElementById("g-nombre")?.value.trim() || "—";
+    const gDni = document.getElementById("g-dni")?.value.trim() || "—";
+    const gDomicilio = document.getElementById("g-domicilio")?.value.trim() || "—";
+    const gTelefono = document.getElementById("g-telefono")?.value.trim() || "—";
 
     const fechaObjeto = new Date();
     const fechaActualTexto = fechaObjeto.toLocaleDateString("es-AR");
@@ -264,21 +270,23 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-let detallePagoHtml = "";
-const pagoClave = metodoPago.toLowerCase();
+    // ==========================================
+    // LÓGICA DE CONDICIONAL DE PAGO REPARADA
+    // ==========================================
+    let detallePagoHtml = "";
+    const pagoClave = metodoPagoStr.toString().toLowerCase().trim();
 
-if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.includes("finan") || cuotasSeleccionadas > 1) {
-  const valorCuota = Math.round(totalContrato / cuotasSeleccionadas);
-  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante un <strong>Plan de Pago Financiado</strong> de <strong>${cuotasSeleccionadas} cuotas</strong> mensuales y consecutivas, ascendiendo cada una de ellas a un importe de <strong>$${valorCuota.toLocaleString("es-AR")}</strong>. Dichas cuotas tendrán un vencimiento perentorio a abonar <strong>entre los días 10 y 20 de cada mes</strong> calendario de forma sucesiva.`;
-} else if (pagoClave.includes("efectivo y") || pagoClave.includes("transferencia y") || pagoClave.includes("combinado")) {
-  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante la modalidad combinada de <strong>Efectivo y Transferencia Bancaria</strong> (detalles específicos registrados en el apartado de observaciones comerciales).`;
-} else if (pagoClave.includes("transferencia") || pagoClave.includes("banco")) {
-  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante <strong>Transferencia Bancaria</strong> a las cuentas institucionales habilitadas por la prestataria.`;
-} else if (pagoClave.includes("efectivo")) {
-  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en <strong>1 pago</strong> en <strong>Efectivo</strong> por la totalidad del monto establecido en la sede de la administración.`;
-} else {
-  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en <strong>1 pago</strong> bajo las condiciones comerciales acordadas en la sede de la administración.`;
-}
+    if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.includes("finan") || cuotasSeleccionadas > 1) {
+      const valorCuota = Math.round(totalContrato / cuotasSeleccionadas);
+      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante un <strong>Plan de Pago Financiado</strong> de <strong>${cuotasSeleccionadas} cuotas</strong> mensuales y consecutivas, ascendiendo cada una de ellas a un importe de <strong>$${valorCuota.toLocaleString("es-AR")}</strong>. Dichas cuotas tendrán un vencimiento perentorio a abonar <strong>entre los días 10 y 20 de cada mes</strong> calendario de forma sucesiva.`;
+    } else if (pagoClave.includes("combinado") || (pagoClave.includes("efectivo") && pagoClave.includes("transferencia"))) {
+      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante la modalidad combinada de <strong>Efectivo y Transferencia Bancaria</strong> (detalles específicos registrados en el apartado de observaciones comerciales).`;
+    } else if (pagoClave.includes("transferencia") || pagoClave.includes("banco")) {
+      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante <strong>Transferencia Bancaria</strong> a las cuentas institucionales habilitadas por la prestataria.`;
+    } else {
+      // Caso Efectivo o valor predeterminado
+      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en <strong>1 pago</strong> en <strong>Efectivo</strong> por la totalidad del monto establecido en la sede de la administración.`;
+    }
 
     const textoItemsMinuscula = tablaHtmlItems.toLowerCase();
     const incluyeNichoReal = textoItemsMinuscula.includes("nicho nuevo") || textoItemsMinuscula.includes("nicho usado") || textoItemsMinuscula.includes("arrendamiento");
@@ -409,16 +417,14 @@ if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.inclu
     };
   }
 
-  // Auxiliar para resetear modal una vez terminado
   function resetearModalLuegoDeAccion() {
     if (modalInstancia) modalInstancia.hide();
-    formContrato.reset();
+    if (formContrato) formContrato.reset();
     const chkPreexistente = document.getElementById("chkPreexistente");
     if (chkPreexistente) chkPreexistente.checked = false;
     const contCampos = document.getElementById("camposPreexistentes");
     if (contCampos) contCampos.style.display = "none";
     
-    // Reset del Garante
     const chkGaranteReset = document.getElementById("chkGarante");
     if (chkGaranteReset) chkGaranteReset.checked = false;
     const contGarante = document.getElementById("camposGarante");
@@ -427,7 +433,6 @@ if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.inclu
     generarEstampaInicial();
   }
 
-  // Configuración base compartida para html2pdf
   const configuracionPdfNativa = {
     margin: [15, 15, 15, 15],
     image: { type: 'jpeg', quality: 1.0 }, 
@@ -436,15 +441,12 @@ if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.inclu
     pagebreak: { mode: ['css', 'avoid-all'] } 
   };
 
-
-  // ==========================================
-  // BOTÓN DEL MODAL: ACCIÓN IMPRIMIR AMBOS
-  // ==========================================
+  // ACCIÓN IMPRIMIR AMBOS
   const btnImprimirContrato = document.getElementById("btnImprimirContrato");
   if (btnImprimirContrato) {
     btnImprimirContrato.addEventListener("click", (evento) => {
       evento.preventDefault();
-      if (!formContrato.checkValidity()) { formContrato.reportValidity(); return; }
+      if (formContrato && !formContrato.checkValidity()) { formContrato.reportValidity(); return; }
 
       const docs = generarEstructurasDocumentos();
 
@@ -487,15 +489,12 @@ if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.inclu
     });
   }
 
-
-  // ==========================================
-  // BOTÓN DEL MODAL: ACCIÓN DESCARGAR ARCHIVOS PDF
-  // ==========================================
+  // ACCIÓN DESCARGAR ARCHIVOS PDF
   const btnDescargarContrato = document.getElementById("btnDescargarContrato");
   if (btnDescargarContrato) {
     btnDescargarContrato.addEventListener("click", (evento) => {
       evento.preventDefault();
-      if (!formContrato.checkValidity()) { formContrato.reportValidity(); return; }
+      if (formContrato && !formContrato.checkValidity()) { formContrato.reportValidity(); return; }
 
       const docs = generarEstructurasDocumentos();
 
