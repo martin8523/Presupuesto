@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Generación única de la estampa numérica al cargar la página (PR- + 3 cifras aleatorias + MM + AAAA)
   let numeroPresupuestoAuto = "";
   function generarEstampaInicial() {
-    const aleatorio = Math.floor(100 + Math.random() * 900); // Fijo 3 dígitos
+    const aleatorio = Math.floor(100 + Math.random() * 900);
     const fecha = new Date();
     const mes = String(fecha.getMonth() + 1).padStart(2, '0');
     const anio = fecha.getFullYear();
@@ -208,22 +208,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // FUNCIÓN MAESTRA PARA CONSTRUIR LOS DOCUMENTOS (PRESUPUESTO Y CONTRATO)
   // ==========================================================================
   function generarEstructurasDocumentos() {
-    // Captura de datos de la Persona
     const nombreTitular = document.getElementById("c-nombre")?.value.trim() || "Sin Nombre";
     const dniTitular = document.getElementById("c-dni")?.value.trim() || "—";
     const domicilioTitular = document.getElementById("c-domicilio")?.value.trim() || "—";
 
-    // Captura robusta del Selector Método de Pago
+    // Captura unificada del selector de pago
     const selectMetodo = document.getElementById("metodoPago");
-    let metodoPagoStr = "Efectivo";
+    let valorSeleccionado = "";
+    let textoSeleccionado = "";
+
     if (selectMetodo) {
-      metodoPagoStr = selectMetodo.value || (selectMetodo.options[selectMetodo.selectedIndex] ? selectMetodo.options[selectMetodo.selectedIndex].text : "Efectivo");
+      valorSeleccionado = (selectMetodo.value || "").toLowerCase().trim();
+      if (selectMetodo.selectedIndex >= 0) {
+        textoSeleccionado = (selectMetodo.options[selectMetodo.selectedIndex].text || "").toLowerCase().trim();
+      }
     }
 
     const inputCuotas = document.getElementById("cantidadCuotas") || document.getElementById("c-cuotas");
     const cuotasSeleccionadas = inputCuotas ? (parseInt(inputCuotas.value, 10) || 1) : 1;
 
-    // Captura de datos del Garante
+    // Datos del Garante
     const chkGarante = document.getElementById("chkGarante");
     const tieneGarante = chkGarante && chkGarante.checked;
     const gNombre = document.getElementById("g-nombre")?.value.trim() || "—";
@@ -246,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (manualMonto && !isNaN(parseFloat(manualMonto))) totalContrato = parseFloat(manualMonto);
     }
 
-    // Construcción de la tabla de ítems
+    // Tabla de ítems
     let tablaHtmlItems = "";
     if (chkPreexistente && chkPreexistente.checked) {
       tablaHtmlItems = `
@@ -271,20 +275,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // LÓGICA DE CONDICIONAL DE PAGO REPARADA
+    // EVALUACIÓN ROBUSTA DE MODALIDAD DE PAGO
     // ==========================================
     let detallePagoHtml = "";
-    const pagoClave = metodoPagoStr.toString().toLowerCase().trim();
 
-    if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.includes("finan") || cuotasSeleccionadas > 1) {
+    const esCuotas = valorSeleccionado.includes("cuota") || 
+                     valorSeleccionado.includes("plan") || 
+                     valorSeleccionado.includes("finan") || 
+                     textoSeleccionado.includes("cuota") || 
+                     textoSeleccionado.includes("plan") || 
+                     cuotasSeleccionadas > 1;
+
+    const esTransferencia = valorSeleccionado.includes("transf") || 
+                            valorSeleccionado.includes("banco") || 
+                            textoSeleccionado.includes("transf") || 
+                            textoSeleccionado.includes("banco");
+
+    const esCombinado = valorSeleccionado.includes("combin") || 
+                        valorSeleccionado.includes("mixto") || 
+                        textoSeleccionado.includes("combin") || 
+                        textoSeleccionado.includes("mixto") ||
+                        (textoSeleccionado.includes("efectivo") && textoSeleccionado.includes("transf"));
+
+    if (esCuotas) {
       const valorCuota = Math.round(totalContrato / cuotasSeleccionadas);
       detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante un <strong>Plan de Pago Financiado</strong> de <strong>${cuotasSeleccionadas} cuotas</strong> mensuales y consecutivas, ascendiendo cada una de ellas a un importe de <strong>$${valorCuota.toLocaleString("es-AR")}</strong>. Dichas cuotas tendrán un vencimiento perentorio a abonar <strong>entre los días 10 y 20 de cada mes</strong> calendario de forma sucesiva.`;
-    } else if (pagoClave.includes("combinado") || (pagoClave.includes("efectivo") && pagoClave.includes("transferencia"))) {
+    } else if (esCombinado) {
       detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante la modalidad combinada de <strong>Efectivo y Transferencia Bancaria</strong> (detalles específicos registrados en el apartado de observaciones comerciales).`;
-    } else if (pagoClave.includes("transferencia") || pagoClave.includes("banco")) {
+    } else if (esTransferencia) {
       detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante <strong>Transferencia Bancaria</strong> a las cuentas institucionales habilitadas por la prestataria.`;
     } else {
-      // Caso Efectivo o valor predeterminado
+      // Opción Efectivo o por defecto
       detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en <strong>1 pago</strong> en <strong>Efectivo</strong> por la totalidad del monto establecido en la sede de la administración.`;
     }
 
@@ -306,7 +327,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
-    // Cláusula de Garantía Solidaria Condicional
     let clausulaGaranteHtml = "";
     if (tieneGarante) {
       tituloClausulaFirmas = incluyeNichoReal ? "SEXTA: DECLARACIÓN DE CONFORMIDAD" : "QUINTA: DECLARACIÓN DE CONFORMIDAD";
