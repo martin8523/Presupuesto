@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const formContrato = document.getElementById("form-contrato");
   let modalInstancia = null;
 
-  // Generación única de la estampa numérica al cargar la página (PR- + 3 cifras aleatorias + MM + AAAA)
+  // Generación única de la estampa numérica (PR- + 3 cifras aleatorias + MM + AAAA)
   let numeroPresupuestoAuto = "";
   function generarEstampaInicial() {
     const aleatorio = Math.floor(100 + Math.random() * 900);
@@ -28,6 +28,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // Inicializar el modal de Bootstrap si existe en el DOM
   if (typeof bootstrap !== 'undefined' && document.getElementById('modalContrato')) {
     modalInstancia = new bootstrap.Modal(document.getElementById('modalContrato'));
+  }
+
+  // Escuchador dinámico para mostrar/ocultar el campo de cuotas según el método de pago
+  const selectMetodoPago = document.getElementById("metodoPago");
+  const contenedorCuotas = document.getElementById("contenedorCuotas");
+  if (selectMetodoPago && contenedorCuotas) {
+    selectMetodoPago.addEventListener("change", () => {
+      const val = (selectMetodoPago.value || "").toLowerCase();
+      const txt = (selectMetodoPago.options[selectMetodoPago.selectedIndex]?.text || "").toLowerCase();
+      if (val.includes("cuota") || val.includes("plan") || val.includes("finan") || txt.includes("cuota") || txt.includes("plan") || txt.includes("finan")) {
+        contenedorCuotas.style.display = "block";
+      } else {
+        contenedorCuotas.style.display = "none";
+      }
+    });
   }
 
   const itemsDisponibles = [
@@ -193,8 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (modalInstancia) {
         if (formContrato) formContrato.reset();
-        const divCuotas = document.getElementById("contenedorCuotas");
-        if (divCuotas) divCuotas.style.display = "none";
+        if (contenedorCuotas) contenedorCuotas.style.display = "none";
         
         const contGarante = document.getElementById("camposGarante");
         if (contGarante) contGarante.style.display = "none";
@@ -205,14 +219,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================================================
-  // FUNCIÓN MAESTRA PARA CONSTRUIR LOS DOCUMENTOS (PRESUPUESTO Y CONTRATO)
+  // FUNCIÓN MAESTRA PARA CONSTRUIR LOS DOCUMENTOS
   // ==========================================================================
   function generarEstructurasDocumentos() {
-    const nombreTitular = document.getElementById("c-nombre")?.value.trim() || "Sin Nombre";
-    const dniTitular = document.getElementById("c-dni")?.value.trim() || "—";
-    const domicilioTitular = document.getElementById("c-domicilio")?.value.trim() || "—";
+    // Datos del Solicitante / Contratante
+    const nombreSolicitante = document.getElementById("c-nombre")?.value.trim() || "Sin Nombre";
+    const dniSolicitante = document.getElementById("c-dni")?.value.trim() || "—";
+    const domicilioSolicitante = document.getElementById("c-domicilio")?.value.trim() || "—";
 
-    // Captura unificada del selector de pago
+    // Datos del Fallecido / Destinatario (Lectura desde el campo correspondiente o respaldo)
+    const elFallecido = document.getElementById("c-fallecido") || document.getElementById("fallecido") || document.getElementById("destinatario");
+    const nombreFallecido = elFallecido?.value.trim() || "—";
+
+    // Captura unificada del Selector de Pago
     const selectMetodo = document.getElementById("metodoPago");
     let valorSeleccionado = "";
     let textoSeleccionado = "";
@@ -250,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (manualMonto && !isNaN(parseFloat(manualMonto))) totalContrato = parseFloat(manualMonto);
     }
 
-    // Tabla de ítems
+    // Tabla de Ítems
     let tablaHtmlItems = "";
     if (chkPreexistente && chkPreexistente.checked) {
       tablaHtmlItems = `
@@ -274,27 +293,17 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // ==========================================
-    // EVALUACIÓN ROBUSTA DE MODALIDAD DE PAGO
-    // ==========================================
+    // EVALUACIÓN DE FORMA DE PAGO
     let detallePagoHtml = "";
 
-    const esCuotas = valorSeleccionado.includes("cuota") || 
-                     valorSeleccionado.includes("plan") || 
-                     valorSeleccionado.includes("finan") || 
-                     textoSeleccionado.includes("cuota") || 
-                     textoSeleccionado.includes("plan") || 
-                     cuotasSeleccionadas > 1;
+    const esCuotas = valorSeleccionado.includes("cuota") || valorSeleccionado.includes("plan") || valorSeleccionado.includes("finan") || 
+                     textoSeleccionado.includes("cuota") || textoSeleccionado.includes("plan") || textoSeleccionado.includes("finan") || cuotasSeleccionadas > 1;
 
-    const esTransferencia = valorSeleccionado.includes("transf") || 
-                            valorSeleccionado.includes("banco") || 
-                            textoSeleccionado.includes("transf") || 
-                            textoSeleccionado.includes("banco");
+    const esTransferencia = valorSeleccionado.includes("transf") || valorSeleccionado.includes("banco") || 
+                            textoSeleccionado.includes("transf") || textoSeleccionado.includes("banco");
 
-    const esCombinado = valorSeleccionado.includes("combin") || 
-                        valorSeleccionado.includes("mixto") || 
-                        textoSeleccionado.includes("combin") || 
-                        textoSeleccionado.includes("mixto") ||
+    const esCombinado = valorSeleccionado.includes("combin") || valorSeleccionado.includes("mixto") || 
+                        textoSeleccionado.includes("combin") || textoSeleccionado.includes("mixto") ||
                         (textoSeleccionado.includes("efectivo") && textoSeleccionado.includes("transf"));
 
     if (esCuotas) {
@@ -305,7 +314,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (esTransferencia) {
       detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante <strong>Transferencia Bancaria</strong> a las cuentas institucionales habilitadas por la prestataria.`;
     } else {
-      // Opción Efectivo o por defecto
       detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en <strong>1 pago</strong> en <strong>Efectivo</strong> por la totalidad del monto establecido en la sede de la administración.`;
     }
 
@@ -313,13 +321,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const incluyeNichoReal = textoItemsMinuscula.includes("nicho nuevo") || textoItemsMinuscula.includes("nicho usado") || textoItemsMinuscula.includes("arrendamiento");
     
     let clausulaNichoHtml = "";
-    let tituloClausulaFirmas = "CUARTA: DECLARACIÓN DE CONFORMIDAD";
+    let tituloClausulaFirmas = "QUINTA: DECLARACIÓN DE CONFORMIDAD";
 
     if (incluyeNichoReal) {
-      tituloClausulaFirmas = "QUINTA: DECLARACIÓN DE CONFORMIDAD";
+      tituloClausulaFirmas = "SEXTA: DECLARACIÓN DE CONFORMIDAD";
       clausulaNichoHtml = `
         <div style="page-break-inside: avoid;">
-          <h3 style="border-bottom: 2px solid #540d97; color: #540d97; margin-top: 12px; margin-bottom: 4px; padding-bottom: 2px; font-size: 12px; font-weight: bold; text-transform: uppercase;">CUARTA: CONCESIÓN Y DERECHOS DE NICHO</h3>
+          <h3 style="border-bottom: 2px solid #540d97; color: #540d97; margin-top: 12px; margin-bottom: 4px; padding-bottom: 2px; font-size: 12px; font-weight: bold; text-transform: uppercase;">QUINTA: CONCESIÓN Y DERECHOS DE NICHO</h3>
           <p style="font-size: 11.5px; margin-bottom: 10px; text-align: justify; margin-top: 0; line-height: 1.4; word-wrap: break-word; white-space: normal;">
             Respecto a los conceptos de arrendamiento o adjudicación de nicho incluidos en el objeto de este contrato, la prestataria otorga el derecho de uso y conservación del espacio designado conforme a los plazos legales establecidos por las ordenanzas municipales vigentes y las reglamentaciones internas de la sección cementerio de la Cooperativa. Cumplido dicho plazo contractual u ordinario, los familiares o responsables directos deberán solicitar la renovación del arrendamiento o, en su defecto, determinar el destino de los restos según los protocolos vigentes.
           </p>
@@ -329,10 +337,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let clausulaGaranteHtml = "";
     if (tieneGarante) {
-      tituloClausulaFirmas = incluyeNichoReal ? "SEXTA: DECLARACIÓN DE CONFORMIDAD" : "QUINTA: DECLARACIÓN DE CONFORMIDAD";
+      tituloClausulaFirmas = incluyeNichoReal ? "SÉPTIMA: DECLARACIÓN DE CONFORMIDAD" : "SEXTA: DECLARACIÓN DE CONFORMIDAD";
       clausulaGaranteHtml = `
         <div style="page-break-inside: avoid;">
-          <h3 style="border-bottom: 2px solid #540d97; color: #540d97; margin-top: 12px; margin-bottom: 4px; padding-bottom: 2px; font-size: 12px; font-weight: bold; text-transform: uppercase;">${incluyeNichoReal ? 'QUINTA' : 'CUARTA BIS'}: GARANTÍA Y FIANZA SOLIDARIA</h3>
+          <h3 style="border-bottom: 2px solid #540d97; color: #540d97; margin-top: 12px; margin-bottom: 4px; padding-bottom: 2px; font-size: 12px; font-weight: bold; text-transform: uppercase;">${incluyeNichoReal ? 'SEXTA' : 'QUINTA'}: GARANTÍA Y FIANZA SOLIDARIA</h3>
           <p style="font-size: 11.5px; margin-bottom: 10px; text-align: justify; margin-top: 0; line-height: 1.4; word-wrap: break-word; white-space: normal;">
             Se constituye como Garante liso, llano y principal pagador de todas las obligaciones derivadas del presente contrato al/la <strong>Sr./Sra. ${gNombre}</strong>, DNI N° <strong>${gDni}</strong>, con domicilio legal en <strong>${gDomicilio}</strong> y teléfono <strong>${gTelefono}</strong>. El/la Garante asume la responsabilidad solidaria y directa sobre el total de los importes adeudados en caso de que EL CONTRATANTE no realice el o los pagos en el tiempo y forma estipulados, renunciando a los beneficios de exclusión y división de bienes.
           </p>
@@ -353,6 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    // PRESUPUESTO CON SOLICITANTE Y DESTINATARIO
     const elPresupuesto = document.createElement("div");
     elPresupuesto.style.width = "100%"; elPresupuesto.style.fontFamily = "Arial, sans-serif"; elPresupuesto.style.color = "#222222"; elPresupuesto.style.padding = "10px"; elPresupuesto.style.backgroundColor = "#ffffff";
     elPresupuesto.innerHTML = `
@@ -362,9 +371,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <p style="margin: 3px 0; color: #e65c00; font-size: 13px; font-weight: bold;">N° SERIE: ${numeroSerie}</p>
         <p style="margin: 2px 0; color: #565656; font-size: 11px;">Saladillo — Fecha: ${fechaActualTexto}</p>
       </div>
-      <div style="background-color: #fcfcfc; padding: 10px; border: 1px solid #dddddd; border-radius: 4px; margin-bottom: 15px; font-size: 12px;">
-        <strong>Destinatario / Titular:</strong> ${nombreTitular}<br>
-        <strong>Documento:</strong> ${dniTitular} | <strong>Domicilio:</strong> ${domicilioTitular}
+      <div style="background-color: #fcfcfc; padding: 10px; border: 1px solid #dddddd; border-radius: 4px; margin-bottom: 15px; font-size: 12px; line-height: 1.5;">
+        <strong>Solicitante:</strong> ${nombreSolicitante} | <strong>DNI:</strong> ${dniSolicitante} | <strong>Domicilio:</strong> ${domicilioSolicitante}<br>
+        <strong>Destinatario (Fallecido/a):</strong> ${nombreFallecido}
       </div>
       <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11.5px; margin-bottom: 15px;">
         <thead>
@@ -386,6 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ${footerHtml}
     `;
 
+    // CONTRATO CON ARTÍCULO 1 AJUSTADO
     const elContrato = document.createElement("div");
     elContrato.style.width = "100%"; elContrato.style.fontFamily = "Arial, sans-serif"; elContrato.style.color = "#222222"; elContrato.style.padding = "10px"; elContrato.style.backgroundColor = "#ffffff";
     elContrato.innerHTML = `
@@ -395,23 +405,37 @@ document.addEventListener("DOMContentLoaded", () => {
         <p style="margin: 2px 0; color: #565656; font-size: 11px;">Vinculado al Presupuesto N° ${numeroSerie}</p>
       </div>
       <p style="font-size: 11.5px; margin-bottom: 10px; text-align: justify; line-height: 1.45;">
-        Conste por el presente documento el <strong>Contrato de Prestación de Servicios Particulares</strong> entre la empresa y el/la <strong>Sr./Sra. ${nombreTitular}</strong>, bajo las siguientes cláusulas:
+        Conste por el presente documento el <strong>Contrato de Prestación de Servicios Particulares</strong> entre la empresa y el/la <strong>Sr./Sra. ${nombreSolicitante}</strong>, bajo las siguientes cláusulas:
       </p>
-      <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">PRIMERA: PARTES CONTRATANTES</h3>
-      <p style="font-size: 11.5px; margin-bottom: 12px; line-height: 1.4;">Tomador: <strong>${nombreTitular}</strong>, DNI N° <strong>${dniTitular}</strong>, Domicilio: <strong>${domicilioTitular}</strong>.</p>
-      <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">SEGUNDA: OBJETO Y VALOR</h3>
-      <p style="font-size: 11.5px; margin-bottom: 12px; line-height: 1.4;">Suministrar prestaciones según <strong>Presupuesto N° ${numeroSerie}</strong> por un valor de <strong>$${totalContrato.toLocaleString("es-AR")}</strong>.</p>
-      <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">TERCERA: MODALIDAD DE PAGO</h3>
+      
+      <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">ARTÍCULO 1: OBJETO DEL SERVICIO</h3>
+      <p style="font-size: 11.5px; margin-bottom: 12px; line-height: 1.45; text-align: justify;">
+        El servicio será prestado para el fallecido: <strong>${nombreFallecido}</strong>; solicitado por <strong>${nombreSolicitante}</strong> (DNI N° <strong>${dniSolicitante}</strong>, Domicilio: <strong>${domicilioSolicitante}</strong>) el día de la fecha <strong>${fechaActualTexto}</strong>.
+      </p>
+
+      <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">SEGUNDA: PARTES Y REPRESENTACIÓN</h3>
+      <p style="font-size: 11.5px; margin-bottom: 12px; line-height: 1.4;">
+        EL CONTRATANTE / SOLICITANTE declara bajo juramento actuar en representación directa y legal de los familiares con derecho a disponer sobre las exequias y prestaciones solicitadas.
+      </p>
+
+      <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">TERCERA: MONTO Y PRESTACIONES</h3>
+      <p style="font-size: 11.5px; margin-bottom: 12px; line-height: 1.4;">
+        Las prestaciones quedan detalladas en el <strong>Presupuesto N° ${numeroSerie}</strong> por un importe total pactado de <strong>$${totalContrato.toLocaleString("es-AR")}</strong>.
+      </p>
+
+      <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">CUARTA: MODALIDAD DE PAGO</h3>
       <p style="font-size: 11.5px; margin-bottom: 6px; line-height: 1.45;">${detallePagoHtml}</p>
+
       ${clausulaNichoHtml}
       ${clausulaGaranteHtml}
+
       <div style="page-break-inside: avoid;">
         <h3 style="border-bottom: 2px solid #540d97; color: #540d97; font-size: 12px; font-weight: bold; text-transform: uppercase;">${tituloClausulaFirmas}</h3>
         <p style="font-size: 11.5px; margin-bottom: 15px; line-height: 1.4;">En prueba de conformidad, se firman ejemplares en la localidad de Saladillo.</p>
         
         <div style="margin-top: 55px; width: 100%; display: block; clear: both; margin-bottom: 10px; page-break-inside: avoid;">
           <div style="width: 30%; float: left; text-align: center; border-top: 1px solid #222222; padding-top: 6px;">
-            <p style="margin: 0; font-size: 11px; font-weight: bold;">Firma del Contratante</p>
+            <p style="margin: 0; font-size: 11px; font-weight: bold;">Firma del Solicitante</p>
           </div>
           
           ${tieneGarante ? `
@@ -433,7 +457,7 @@ document.addEventListener("DOMContentLoaded", () => {
       elementoPresupuesto: elPresupuesto, 
       elementoContrato: elContrato, 
       nombreArchivoSerie: numeroSerie.replace(/[^a-zA-Z0-9-_]/g, '_'),
-      nombreTitularLimpio: nombreTitular.replace(/\s+/g, '_')
+      nombreTitularLimpio: nombreSolicitante.replace(/\s+/g, '_')
     };
   }
 
