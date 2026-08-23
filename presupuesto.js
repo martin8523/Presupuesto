@@ -264,18 +264,21 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    let detallePagoHtml = "";
-    const pagoClave = metodoPago.toLowerCase();
-    if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.includes("finan") || cuotasSeleccionadas > 1) {
-      const valorCuota = Math.round(totalContrato / cuotasSeleccionadas);
-      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante un <strong>Plan de Pago Financiado</strong> de <strong>${cuotasSeleccionadas} cuotas</strong> mensuales y consecutivas, ascendiendo cada una de ellas a un importe de <strong>$${valorCuota.toLocaleString("es-AR")}</strong>. Dichas cuotas tendrán un vencimiento perentorio a abonar <strong>entre los días 10 y 20 de cada mes</strong> calendario de forma sucesiva.`;
-    } else if (pagoClave.includes("efectivo y") || pagoClave.includes("transferencia y") || pagoClave.includes("combinado")) {
-      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante la modalidad combinada de <strong>Efectivo y Transferencia Bancaria</strong> (detalles específicos registrados en el apartado de observaciones comerciales).`;
-    } else if (pagoClave.includes("transferencia") || pagoClave.includes("banco")) {
-      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante <strong>Transferencia Bancaria</strong> a las cuentas institucionales habilitadas por la prestataria.`;
-    } else {
-      detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en un único pago en <strong>Efectivo</strong> bajo las condiciones comerciales acordadas en la sede de la administración.`;
-    }
+let detallePagoHtml = "";
+const pagoClave = metodoPago.toLowerCase();
+
+if (pagoClave.includes("plan") || pagoClave.includes("cuota") || pagoClave.includes("finan") || cuotasSeleccionadas > 1) {
+  const valorCuota = Math.round(totalContrato / cuotasSeleccionadas);
+  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante un <strong>Plan de Pago Financiado</strong> de <strong>${cuotasSeleccionadas} cuotas</strong> mensuales y consecutivas, ascendiendo cada una de ellas a un importe de <strong>$${valorCuota.toLocaleString("es-AR")}</strong>. Dichas cuotas tendrán un vencimiento perentorio a abonar <strong>entre los días 10 y 20 de cada mes</strong> calendario de forma sucesiva.`;
+} else if (pagoClave.includes("efectivo y") || pagoClave.includes("transferencia y") || pagoClave.includes("combinado")) {
+  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante la modalidad combinada de <strong>Efectivo y Transferencia Bancaria</strong> (detalles específicos registrados en el apartado de observaciones comerciales).`;
+} else if (pagoClave.includes("transferencia") || pagoClave.includes("banco")) {
+  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado mediante <strong>Transferencia Bancaria</strong> a las cuentas institucionales habilitadas por la prestataria.`;
+} else if (pagoClave.includes("efectivo")) {
+  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en <strong>1 pago</strong> en <strong>Efectivo</strong> por la totalidad del monto establecido en la sede de la administración.`;
+} else {
+  detallePagoHtml = `EL CONTRATANTE se obliga al cumplimiento del pago asignado en <strong>1 pago</strong> bajo las condiciones comerciales acordadas en la sede de la administración.`;
+}
 
     const textoItemsMinuscula = tablaHtmlItems.toLowerCase();
     const incluyeNichoReal = textoItemsMinuscula.includes("nicho nuevo") || textoItemsMinuscula.includes("nicho usado") || textoItemsMinuscula.includes("arrendamiento");
