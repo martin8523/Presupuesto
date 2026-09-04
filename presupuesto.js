@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const itemsDisponibles = [
-    { descripcion: "Ataud para Nicho N° 15", precio: 645000 },
+    { descripcion: "Ataud para Nicho N° 15", precio: 700000 },
     { descripcion: "Ataud para Nicho Semi-Extraordinario", precio: 752000 },
     { descripcion: "Ataud para Nicho Extraordinario", precio: 1160000 },
     { descripcion: "Nicho Nuevo", precio: 1030000 },
