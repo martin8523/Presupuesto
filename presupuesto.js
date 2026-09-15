@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { descripcion: "Auto Acompañamiento", precio: 125000 },
     { descripcion: "Ataud para Tierra N° 15", precio: 418000 },
     { descripcion: "Ataud para Tierra Semi-Extraordinario", precio: 490000 },
-    { descripcion: "Ataud para Tierra Extraordinario", precio: 8800000 },
+    { descripcion: "Ataud para Tierra Extraordinario", precio: 880000 },
     { descripcion: "Diferencia por Cambio de Ataud 15", precio: 227000 },
     { descripcion: "Diferencia por Cambio de Ataud Semi", precio: 262000 },
     { descripcion: "Diferencia por Cambio de Ataud Extra", precio: 460000 },
