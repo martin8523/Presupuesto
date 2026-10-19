@@ -139,6 +139,59 @@ select {
   color: #222;
 }
 
+/* ── Pantalla de carga de precios (bloquea la página) ── */
+#overlay-precios {
+  position: fixed;
+  inset: 0;
+  z-index: 2000; /* por encima de los modales de Bootstrap */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(36, 18, 36, 0.75);
+}
+
+#overlay-precios .overlay-caja {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px 40px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+#overlay-precios .overlay-spinner {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border: 6px solid #e1d5eb;
+  border-top-color: #8231b8;
+  border-radius: 50%;
+  animation: giro-overlay 0.9s linear infinite;
+}
+
+#overlay-precios .overlay-texto {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #540d97;
+}
+
+#overlay-precios .overlay-texto.overlay-error { color: #c0392b; }
+
+#overlay-precios .overlay-reintentar {
+  margin-top: 16px;
+  padding: 8px 24px;
+  background-color: #8231b8;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+#overlay-precios .overlay-reintentar:hover { background-color: #540d97; }
+
+@keyframes giro-overlay { to { transform: rotate(360deg); } }
+
 /* ── Footer ── */
 #foot {
   margin-top: 50px;
@@ -174,7 +227,7 @@ select {
 }
 
 @media print {
-  .botones, select, button, .modal, .modal-backdrop {
+  .botones, select, button, .modal, .modal-backdrop, #overlay-precios {
     display: none !important;
   }
 
