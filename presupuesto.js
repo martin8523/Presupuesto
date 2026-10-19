@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== PRECIOS DESDE GOOGLE SHEETS =====
   // Hoja "Base", tabla "Precios": columna C = detalle, columna M = valor.
   // Pegar acá la URL del despliegue de Apps Script (termina en /exec)
-  const URL_PRECIOS = "https://script.google.com/macros/s/PEGAR_AQUI_EL_ID_DEL_DESPLIEGUE/exec?accion=precios";
+  const URL_PRECIOS = "https://script.google.com/macros/s/AKfycbz2pLJamvYkzLzz7NlpHxkFcBejjf-2KLbHgxyVtHzdj4NbY9GI_rI7a3MmnldCtbPV/exec?accion=precios";
 
   let itemsDisponibles = [];
 
