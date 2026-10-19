@@ -58,13 +58,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let itemsDisponibles = [];
 
-  // Estado de carga, se muestra al lado del botón "Agregar"
-  const estadoPrecios = document.createElement("span");
-  estadoPrecios.style.marginLeft = "10px";
-  estadoPrecios.style.fontSize = "13px";
-  if (btnAgregar) {
-    btnAgregar.disabled = true;
-    btnAgregar.insertAdjacentElement("afterend", estadoPrecios);
+  // Pantalla de carga que bloquea la página hasta tener los precios
+  const overlayPrecios = document.createElement("div");
+  overlayPrecios.id = "overlay-precios";
+  overlayPrecios.innerHTML = `
+    <div class="overlay-caja">
+      <div class="overlay-spinner"></div>
+      <p class="overlay-texto"></p>
+      <button type="button" class="overlay-reintentar">Reintentar</button>
+    </div>`;
+  document.body.appendChild(overlayPrecios);
+
+  const overlaySpinner = overlayPrecios.querySelector(".overlay-spinner");
+  const overlayTexto = overlayPrecios.querySelector(".overlay-texto");
+  const overlayReintentar = overlayPrecios.querySelector(".overlay-reintentar");
+  overlayReintentar.addEventListener("click", cargarPrecios);
+
+  if (btnAgregar) btnAgregar.disabled = true;
+
+  function mostrarCargando() {
+    overlayPrecios.style.display = "flex";
+    overlaySpinner.style.display = "block";
+    overlayReintentar.style.display = "none";
+    overlayTexto.classList.remove("overlay-error");
+    overlayTexto.textContent = "Cargando precios, por favor espere...";
+  }
+
+  function mostrarErrorCarga() {
+    overlaySpinner.style.display = "none";
+    overlayReintentar.style.display = "inline-block";
+    overlayTexto.classList.add("overlay-error");
+    overlayTexto.textContent = "No se pudieron cargar los precios. Verifique la conexión e intente nuevamente.";
   }
 
   // Acepta números o textos tipo "$ 1.030.000" / "1.030.000,50"
@@ -76,8 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function cargarPrecios() {
-    estadoPrecios.style.color = "#565656";
-    estadoPrecios.textContent = "Cargando precios...";
+    mostrarCargando();
     try {
       const resp = await fetch(URL_PRECIOS);
       if (!resp.ok) throw new Error("HTTP " + resp.status);
@@ -93,12 +116,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (itemsDisponibles.length === 0) throw new Error("La tabla Precios no devolvió ítems");
 
-      estadoPrecios.textContent = "";
+      overlayPrecios.style.display = "none";
       if (btnAgregar) btnAgregar.disabled = false;
     } catch (err) {
       console.error("Error al cargar precios:", err);
-      estadoPrecios.style.color = "#c0392b";
-      estadoPrecios.textContent = "No se pudieron cargar los precios. Recargá la página.";
+      mostrarErrorCarga();
     }
   }
   cargarPrecios();
