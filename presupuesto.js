@@ -51,30 +51,57 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const itemsDisponibles = [
-    { descripcion: "Ataud para Nicho N° 15", precio: 700000 },
-    { descripcion: "Ataud para Nicho Semi-Extraordinario", precio: 752000 },
-    { descripcion: "Ataud para Nicho Extraordinario", precio: 1160000 },
-    { descripcion: "Nicho Nuevo", precio: 1030000 },
-    { descripcion: "Nicho Usado", precio: 515000 },
-    { descripcion: "Cremacion", precio: 1180000 },
-    { descripcion: "Servicio Velacion 8 Hs ", precio: 3415000 },
-    { descripcion: "Hora de Velación", precio: 427000 },
-    { descripcion: "Gastos Administrativos", precio: 75000 },
-    { descripcion: "Auto Acompañamiento", precio: 125000 },
-    { descripcion: "Ataud para Tierra N° 15", precio: 418000 },
-    { descripcion: "Ataud para Tierra Semi-Extraordinario", precio: 490000 },
-    { descripcion: "Ataud para Tierra Extraordinario", precio: 880000 },
-    { descripcion: "Diferencia por Cambio de Ataud 15", precio: 227000 },
-    { descripcion: "Diferencia por Cambio de Ataud Semi", precio: 262000 },
-    { descripcion: "Diferencia por Cambio de Ataud Extra", precio: 460000 },
-    { descripcion: "Ataud Angelito Nicho 2", precio: 330000 },
-    { descripcion: "Ataud Angelito Nicho 4", precio: 345000 },
-    { descripcion: "Ataud Angelito Nicho 6", precio: 350000 },
-    { descripcion: "Ataud Angelito Nicho 8", precio: 390000 },
-    { descripcion: "Ataud Angelito Nicho 10", precio: 430000 },
-    { descripcion: "Ataud Angelito Nicho 12", precio: 505000 }
-  ];
+  // ===== PRECIOS DESDE GOOGLE SHEETS =====
+  // Hoja "Base", tabla "Precios": columna C = detalle, columna M = valor.
+  // Pegar acá la URL del despliegue de Apps Script (termina en /exec)
+  const URL_PRECIOS = "https://script.google.com/macros/s/AKfycbz2pLJamvYkzLzz7NlpHxkFcBejjf-2KLbHgxyVtHzdj4NbY9GI_rI7a3MmnldCtbPV/exec?accion=precios";
+
+  let itemsDisponibles = [];
+
+  // Estado de carga, se muestra al lado del botón "Agregar"
+  const estadoPrecios = document.createElement("span");
+  estadoPrecios.style.marginLeft = "10px";
+  estadoPrecios.style.fontSize = "13px";
+  if (btnAgregar) {
+    btnAgregar.disabled = true;
+    btnAgregar.insertAdjacentElement("afterend", estadoPrecios);
+  }
+
+  // Acepta números o textos tipo "$ 1.030.000" / "1.030.000,50"
+  function parsearPrecio(valor) {
+    if (typeof valor === "number") return valor;
+    if (valor === null || valor === undefined) return NaN;
+    const limpio = String(valor).replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+    return limpio === "" ? NaN : parseFloat(limpio);
+  }
+
+  async function cargarPrecios() {
+    estadoPrecios.style.color = "#565656";
+    estadoPrecios.textContent = "Cargando precios...";
+    try {
+      const resp = await fetch(URL_PRECIOS);
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      const data = await resp.json();
+      if (!data.ok) throw new Error(data.error || "Respuesta inválida");
+
+      itemsDisponibles = data.items
+        .map(it => ({
+          descripcion: String(it.descripcion || "").trim(),
+          precio: parsearPrecio(it.precio)
+        }))
+        .filter(it => it.descripcion !== "" && !isNaN(it.precio));
+
+      if (itemsDisponibles.length === 0) throw new Error("La tabla Precios no devolvió ítems");
+
+      estadoPrecios.textContent = "";
+      if (btnAgregar) btnAgregar.disabled = false;
+    } catch (err) {
+      console.error("Error al cargar precios:", err);
+      estadoPrecios.style.color = "#c0392b";
+      estadoPrecios.textContent = "No se pudieron cargar los precios. Recargá la página.";
+    }
+  }
+  cargarPrecios();
 
   const fechaEl = document.getElementById("fecha");
   if (fechaEl) fechaEl.textContent = new Date().toLocaleDateString("es-AR");
